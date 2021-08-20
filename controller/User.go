@@ -1,8 +1,7 @@
-package Controller
+package controller
 
 import "github.com/gin-gonic/gin"
-import "net/http"
-import "hb-backend-v1/form"
+import _ "net/http"
 
 type User struct{
 	ID int

@@ -2,13 +2,20 @@ package routes
 
 import "github.com/gin-gonic/gin"
 import "net/http"
-import "hb-backend-v1/controller"
+import _"hb-backend-v1/controller"
 import "fmt"
+import "hb-backend-v1/config/database"
 
 func Routes() *gin.Engine {
 	router := gin.Default()
 	router.GET("/",func(c *gin.Context){
-		c.String(http.StatusOK, fmt.Sprintf("Request GET success!"))
+		// c.String(http.StatusOK, fmt.Sprintf("Request GET success!"))
+		hasil, err := sqlConnect.Query()
+		if err != nil{
+			c.JSON(200, gin.H{"hasil":err})
+		}else{
+			c.JSON(200, hasil)
+		}
 	})
 	user := router.Group("/user")
 	{
