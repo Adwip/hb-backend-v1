@@ -11,10 +11,11 @@ func Routes() *gin.Engine {
 	router.GET("/",func(c *gin.Context){
 		// c.String(http.StatusOK, fmt.Sprintf("Request GET success!"))
 		hasil, err := sqlConnect.Query()
+		fmt.Println(hasil)
 		if err != nil{
-			c.JSON(200, gin.H{"hasil":err})
+			c.JSON(200, gin.H{"hasil":err.Error()})
 		}else{
-			c.JSON(200, hasil)
+			c.JSON(200, gin.H{"success":true, "result":hasil})
 		}
 	})
 	user := router.Group("/user")
