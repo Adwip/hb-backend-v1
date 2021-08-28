@@ -1,8 +1,8 @@
-package sqlConnect
+package database
 
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
-import  "fmt"
+import "fmt"
 
 type conectionString struct{
 	dbname string
@@ -20,7 +20,7 @@ type resultDB struct{
 	Longitude 		sql.NullString
 }
 
-func connect() (*sql.DB, error){
+func Connect() (*sql.DB, error){
 	db, err := sql.Open("mysql","root:@tcp(127.0.0.1:3306)/hubing_db")
 
 	if err != nil{
@@ -30,11 +30,9 @@ func connect() (*sql.DB, error){
 }
 
 func Query() ([]resultDB, error){
-	connect, err := connect()
-	fmt.Println("Koneksi berhasil")
+	connect, err := Connect()
 
 	if err != nil{
-		fmt.Println("Koneksi gagal")
 		return nil, err
 	}
 
@@ -45,21 +43,20 @@ func Query() ([]resultDB, error){
 	defer rows.Close()
 
 	if err != nil{
-		fmt.Println("Query gagal")
 		return nil, err
 	}
 
+	fmt.Println("Hasil unScan query Database")
+	fmt.Println(rows)
 	var result []resultDB
 
 	for rows.Next(){
 		var each = resultDB{}
 		var err = rows.Scan(&each.Id_alamat_store, &each.Id_tk, &each.Alamat, &each.Id_wil, &each.Latitude, &each.Longitude)
 		if err != nil{
-			fmt.Println("Mapping gagal", err.Error())
 			return result, nil
 		}
 		result = append(result, each)
 	}
-	fmt.Println(result)
 	return result, nil
 }
