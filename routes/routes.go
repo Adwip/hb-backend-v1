@@ -4,17 +4,21 @@ import "github.com/gin-gonic/gin"
 import "net/http"
 import _"hb-backend-v1/controller"
 import "fmt"
+import "hb-backend-v1/model/product"
 import "hb-backend-v1/config/database"
 
 func Routes() *gin.Engine {
 	router := gin.Default()
 	router.GET("/",func(c *gin.Context){
 		// c.String(http.StatusOK, fmt.Sprintf("Request GET success!"))
-		hasil, err := sqlConnect.Query()
+		hasil, err := product.DaftarProduct()
+		_, _ = database.Query()
+		// fmt.Println(hasil)
 		if err != nil{
-			c.JSON(200, gin.H{"hasil":err})
+			c.JSON(200, gin.H{"hasil":err.Error()})
 		}else{
-			c.JSON(200, hasil)
+			fmt.Println("Hasil ada => final Routes => ", hasil)
+			c.JSON(200, gin.H{"success":true, "result":hasil})
 		}
 	})
 	user := router.Group("/user")
