@@ -5,19 +5,18 @@ import "net/http"
 import _"hb-backend-v1/controller"
 import "fmt"
 import "hb-backend-v1/model/product"
-import "hb-backend-v1/config/database"
+import _"hb-backend-v1/config/database"
 
 func Routes() *gin.Engine {
 	router := gin.Default()
 	router.GET("/",func(c *gin.Context){
 		// c.String(http.StatusOK, fmt.Sprintf("Request GET success!"))
-		hasil, err := product.DaftarProduct()
-		_, _ = database.Query()
+		hasil, err := product.ProductList()
+		// _, _ = database.Query()
 		// fmt.Println(hasil)
 		if err != nil{
-			c.JSON(200, gin.H{"hasil":err.Error()})
+			c.JSON(200, gin.H{"success":false, "hasil":err.Error()})
 		}else{
-			fmt.Println("Hasil ada => final Routes => ", hasil)
 			c.JSON(200, gin.H{"success":true, "result":hasil})
 		}
 	})
@@ -39,7 +38,11 @@ func Routes() *gin.Engine {
 		v1.POST("/read",func(c *gin.Context){
 			c.String(http.StatusOK, fmt.Sprintf("Request v1 read POST success!"))
 		})
-	}
+	}/*
+	account := router.Group("/account")
+	{
+		account.GET("/",controller.AllAccount)
+	}*/
 
 	return router
 }
