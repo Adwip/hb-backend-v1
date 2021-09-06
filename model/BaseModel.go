@@ -21,3 +21,11 @@ func Query(query string, scan func(*sql.Rows) error) error{
 
 	return scan(rows)
 }
+
+func Update() int {
+	return 1
+}
+
+func Delete() int {
+	return 1
+}
