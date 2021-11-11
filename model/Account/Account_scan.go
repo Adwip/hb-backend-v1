@@ -6,3 +6,10 @@ type AccountScan struct{
 	Username 		string
 	Email			string
 }
+
+type LoginResult struct{
+	Id				int
+	Name			string
+	Username		string
+	Email			string
+}
