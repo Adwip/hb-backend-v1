@@ -1,17 +1,26 @@
 package model
 
 import "database/sql"
-import "hb-backend-v1/config/database"
+import _"fmt"
+
+var DB *sql.DB
+
+type Dao struct{
+	Query string
+	Rows *sql.Rows
+}
 
 func Query(query string, scan func(*sql.Rows) error) error{
+	/*
 	connect, err := database.Connect()
 
 	if err != nil{
 		return err
 	}
 	defer connect.Close()
-
-	rows, err := connect.Query(query)
+	*/
+	
+	rows, err := DB.Query(query)
 
 	if err != nil{
 		return err
@@ -22,8 +31,21 @@ func Query(query string, scan func(*sql.Rows) error) error{
 	return scan(rows)
 }
 
-func Update() int {
-	return 1
+func (dao *Dao) Select() error{
+
+	result, err := DB.Query(dao.Query)
+
+	if err != nil{
+		defer result.Close()
+		return err
+	}
+	dao.Rows = result
+	
+	return nil
+}
+
+func Update(query string) error {
+	return nil
 }
 
 func Delete() int {

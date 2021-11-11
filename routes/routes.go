@@ -6,17 +6,18 @@ import "hb-backend-v1/controller"
 func Routes() *gin.Engine {
 	router := gin.New()
 
-	// router.GET("/test", controller.AllAccount)
-	router.POST("/login",controller.Login)
+	// router.GET("/all-account", controller.AllAccount)
+	// router.POST("/login",controller.Login)
+	router.GET("/",controller.Test)
 	/*
-	auth := router.Group("")
+	auth := router.Group("/auth")
 	{
-		auth.POST("/login",nil)
-		auth.POST("/registration",nil)
-		auth.PUT("/password",nil)
-		auth.POST("/destroy",nil)
-	}
-	*/
+		// auth.POST("/login",controller.Login)
+		// auth.POST("/registration",nil)
+		// auth.PUT("/password",nil)
+		// auth.POST("/destroy",nil)
+	}*/
+	
 	/*
 	product := router.Group("/product")
 	{
@@ -80,7 +81,8 @@ func Routes() *gin.Engine {
 	payment := router.Group("/payment")
 	{
 		payment.POST("")
-	}*/
+	}
+	*/
 
 	account := router.Group("/account")
 	{
