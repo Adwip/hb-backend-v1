@@ -1,13 +1,15 @@
 package model
 
 import "database/sql"
-import _"fmt"
+// import "fmt"
+// import "reflect"
 
 var DB *sql.DB
 
 type Dao struct{
 	Query string
 	Rows *sql.Rows
+	Row *sql.Row
 }
 
 func Query(query string, scan func(*sql.Rows) error) error{
@@ -31,16 +33,34 @@ func Query(query string, scan func(*sql.Rows) error) error{
 	return scan(rows)
 }
 
-func (dao *Dao) Select() error{
-
-	result, err := DB.Query(dao.Query)
+func (dao *Dao) Select(param ...interface{}) error{
+	var rows *sql.Rows
+	var err error
+	if len(param) > 0{
+		rows, err = DB.Query(dao.Query, param...)
+	}else{
+		rows, err = DB.Query(dao.Query)
+	}
 
 	if err != nil{
-		defer result.Close()
+		defer rows.Close()
 		return err
 	}
-	dao.Rows = result
+	dao.Rows = rows
 	
+	return nil
+}
+
+func (dao *Dao) SelectOne(param ...interface{}) error{
+	var row *sql.Row
+	
+	if len(param) > 0{
+		row = DB.QueryRow(dao.Query, param...)
+	}else{
+		row = DB.QueryRow(dao.Query)
+	}
+	
+	dao.Row = row
 	return nil
 }
 
@@ -50,4 +70,8 @@ func Update(query string) error {
 
 func Delete() int {
 	return 1
+}
+
+func Insert() {
+	
 }

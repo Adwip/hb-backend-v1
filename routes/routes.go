@@ -9,14 +9,15 @@ func Routes() *gin.Engine {
 	// router.GET("/all-account", controller.AllAccount)
 	// router.POST("/login",controller.Login)
 	router.GET("/",controller.Test)
-	/*
+	
+	
 	auth := router.Group("/auth")
 	{
-		// auth.POST("/login",controller.Login)
+		auth.POST("/login",controller.Login)
 		// auth.POST("/registration",nil)
 		// auth.PUT("/password",nil)
 		// auth.POST("/destroy",nil)
-	}*/
+	}
 	
 	/*
 	product := router.Group("/product")
