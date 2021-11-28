@@ -21,12 +21,12 @@ func Login(c*gin.Context){
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	result, errDB := account.Login(LoginForm.Username, LoginForm.Email)
-	if errDB != nil{
-		c.JSON(500, gin.H{"success":false,"error": errDB.Error()})
+	exists, result, _ := account.Login(LoginForm.Username, LoginForm.Email)
+	if !exists {
+		c.JSON(200, gin.H{"success":false})
 		return
 	}
-	c.JSON(200, gin.H{"success":true, "result":result})
+	c.JSON(200, gin.H{"success":true, "data":result})
 }
 
 func Regristration(c *gin.Context){

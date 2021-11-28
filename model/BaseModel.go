@@ -1,7 +1,7 @@
 package model
 
 import "database/sql"
-// import "fmt"
+import "fmt"
 // import "reflect"
 
 var DB *sql.DB
@@ -9,7 +9,6 @@ var DB *sql.DB
 type Dao struct{
 	Query string
 	Rows *sql.Rows
-	Row *sql.Row
 }
 
 func Query(query string, scan func(*sql.Rows) error) error{
@@ -51,17 +50,28 @@ func (dao *Dao) Select(param ...interface{}) error{
 	return nil
 }
 
-func (dao *Dao) SelectOne(param ...interface{}) error{
-	var row *sql.Row
-	
+func (dao *Dao) SelectOne(param ...interface{}) (bool, *sql.Row, error){
+	var result, resultCheck *sql.Row
+	var exists bool
+	var err error
+	queryCheck := fmt.Sprintf("SELECT exists (%s)", dao.Query)
 	if len(param) > 0{
-		row = DB.QueryRow(dao.Query, param...)
+		resultCheck = DB.QueryRow(queryCheck, param...)
+		result = DB.QueryRow(dao.Query, param...)
 	}else{
-		row = DB.QueryRow(dao.Query)
+		resultCheck = DB.QueryRow(queryCheck)
+		result = DB.QueryRow(dao.Query)
 	}
+	err = resultCheck.Scan(&exists)
+	if !exists {
+		return false, result, err
+	}
+	/*
+	if err != nil && err != sql.ErrNoRows{
+		return false, result, err
+	}*/
 	
-	dao.Row = row
-	return nil
+	return true, result, nil
 }
 
 func Update(query string) error {
@@ -75,3 +85,4 @@ func Delete() int {
 func Insert() {
 	
 }
+

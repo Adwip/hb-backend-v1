@@ -46,23 +46,18 @@ func AllAccount() ([]AccountScan, error){
 }
 
 
-func Login(username string, email string)(LoginResult, error){
+func Login(username string, email string)(bool, LoginResult, error){
 	// md5 := md5.New()
 	var result LoginResult
 	Dao.Query = "select id, name, username, email from account where username = ? OR email = ?"
-	err := Dao.SelectOne(username, email)
-	
-	if err != nil{
-		if Dao.Row.Scan(&result.Id).ErrNoRows{
-
-		}
-		return result, err
+	exists, row, error := Dao.SelectOne(username, email)
+	if !exists {
+		return false, result, error
 	}
-	
-	Dao.Row.Scan(&result.Id, &result.Name, &result.Username, &result.Email)
 
+	row.Scan(&result.Id, &result.Name, &result.Username, &result.Email)
 
-	return result, err
+	return true, result, nil
 }
 
 

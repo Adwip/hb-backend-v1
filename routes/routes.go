@@ -90,5 +90,10 @@ func Routes() *gin.Engine {
 		account.GET("/",controller.AllAccount)
 	}
 
+	
+	router.NoRoute(func(c *gin.Context){
+		c.JSON(404, gin.H{"success":false, "error":"URL Not Found"})
+	})
+
 	return router
 }
