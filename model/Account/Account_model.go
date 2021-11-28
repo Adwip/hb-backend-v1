@@ -44,16 +44,21 @@ func AllAccount() ([]AccountScan, error){
 
 	return result,nil
 }
-/*
-func Login(username string, email string)(LoginResult, error){
-	md5 := md5.New()
-	var result = LoginResult{}
-	err := model.QueryRow("SELECT Id, Name, Username, Email FROM table WHERE Username = ? OR Email = ?", username, email)
-	if err!=nil{
-		return nil, err
+
+
+func Login(username string, email string)(bool, LoginResult, error){
+	// md5 := md5.New()
+	var result LoginResult
+	Dao.Query = "select id, name, username, email from account where username = ? OR email = ?"
+	exists, row, error := Dao.SelectOne(username, email)
+	if !exists {
+		return false, result, error
 	}
-	return LoginResult, nil
-}*/
+
+	row.Scan(&result.Id, &result.Name, &result.Username, &result.Email)
+
+	return true, result, nil
+}
 
 
 

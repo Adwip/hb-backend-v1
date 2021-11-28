@@ -1,7 +1,8 @@
 package model
 
 import "database/sql"
-import _"fmt"
+import "fmt"
+// import "reflect"
 
 var DB *sql.DB
 
@@ -31,17 +32,46 @@ func Query(query string, scan func(*sql.Rows) error) error{
 	return scan(rows)
 }
 
-func (dao *Dao) Select() error{
-
-	result, err := DB.Query(dao.Query)
+func (dao *Dao) Select(param ...interface{}) error{
+	var rows *sql.Rows
+	var err error
+	if len(param) > 0{
+		rows, err = DB.Query(dao.Query, param...)
+	}else{
+		rows, err = DB.Query(dao.Query)
+	}
 
 	if err != nil{
-		defer result.Close()
+		defer rows.Close()
 		return err
 	}
-	dao.Rows = result
+	dao.Rows = rows
 	
 	return nil
+}
+
+func (dao *Dao) SelectOne(param ...interface{}) (bool, *sql.Row, error){
+	var result, resultCheck *sql.Row
+	var exists bool
+	var err error
+	queryCheck := fmt.Sprintf("SELECT exists (%s)", dao.Query)
+	if len(param) > 0{
+		resultCheck = DB.QueryRow(queryCheck, param...)
+		result = DB.QueryRow(dao.Query, param...)
+	}else{
+		resultCheck = DB.QueryRow(queryCheck)
+		result = DB.QueryRow(dao.Query)
+	}
+	err = resultCheck.Scan(&exists)
+	if !exists {
+		return false, result, err
+	}
+	/*
+	if err != nil && err != sql.ErrNoRows{
+		return false, result, err
+	}*/
+	
+	return true, result, nil
 }
 
 func Update(query string) error {
@@ -51,3 +81,8 @@ func Update(query string) error {
 func Delete() int {
 	return 1
 }
+
+func Insert() {
+	
+}
+

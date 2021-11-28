@@ -13,7 +13,7 @@ func AllAccount(c *gin.Context){
 	}
 }
 
-/*
+
 func Login(c*gin.Context){
 	var LoginForm account.LoginForm
 	// result, err := account.Login()
@@ -21,13 +21,13 @@ func Login(c*gin.Context){
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	result, errDB := account.Login(LoginForm.Username, LoginForm.email)
-	if errDB != nil{
-		c.JSON(500, gin.H{"error": errDB.Error()})
+	exists, result, _ := account.Login(LoginForm.Username, LoginForm.Email)
+	if !exists {
+		c.JSON(200, gin.H{"success":false})
 		return
 	}
-	c.JSON(200, gin.H{"success":true, "result":result})
-}*/
+	c.JSON(200, gin.H{"success":true, "data":result})
+}
 
 func Regristration(c *gin.Context){
 	
