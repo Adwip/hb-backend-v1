@@ -12,4 +12,5 @@ type LoginResult struct{
 	Name			string
 	Username		string
 	Email			string
+	Token			string
 }
