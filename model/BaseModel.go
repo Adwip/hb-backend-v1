@@ -74,15 +74,44 @@ func (dao *Dao) SelectOne(param ...interface{}) (bool, *sql.Row, error){
 	return true, result, nil
 }
 
-func Update(query string) error {
-	return nil
-}
-
-func Delete() int {
-	return 1
-}
-
-func Insert() {
+func (dao *Dao) Update(param ...interface{}) (bool, error) {
+	if len(param)<1{
+		return false, nil
+	}
 	
+	_, err := DB.Exec(dao.Query, param)
+
+	if err != nil{
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (dao *Dao) Delete(param ...interface{}) (bool, error) {
+	if len(param)<1{
+		return false, nil
+	}
+	
+	_, err := DB.Exec(dao.Query, param)
+
+	if err != nil{
+		return false, err
+	}
+
+	return true, nil
+
+func (dao *Dao) Insert(param ...interface{}) (bool, error) {
+	if len(param)<1{
+		return false, nil
+	}
+
+	_, err := DB.Exec(dao.Query, param)
+
+	if err != nil{
+		return false, err
+	}
+
+	return true, nil
 }
 
