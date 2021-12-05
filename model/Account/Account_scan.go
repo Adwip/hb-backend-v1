@@ -12,5 +12,13 @@ type LoginResult struct{
 	Name			string
 	Username		string
 	Email			string
-	Token			string
+	Password		string
+}
+
+
+type LoginForm struct{
+	Username string `json:"username"`
+	Email	string	`json:"email"`
+	Password string	`json:"password"`
+	KeepLogin bool	`json:"keepLogin"`
 }

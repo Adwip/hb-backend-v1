@@ -3,6 +3,7 @@ package account
 import "hb-backend-v1/model"
 import _"database/sql"
 import _"crypto/md5"
+import "hb-backend-v1/library/auth"
 
 var Dao = model.Dao{}
 /*
@@ -46,18 +47,24 @@ func AllAccount() ([]AccountScan, error){
 }
 
 
-func Login(username string, email string)(bool, LoginResult, error){
+func Login(username string, email string, password string)(bool, LoginResult, error){
 	// md5 := md5.New()
 	var result LoginResult
-	Dao.Query = "select id, name, username, email from account where username = ? OR email = ?"
+	Dao.Query = "select id, name, username, email, password from account where username = ? OR email = ?"
 	exists, row, error := Dao.SelectOne(username, email)
 	if !exists {
 		return false, result, error
 	}
+	// fmt.Println(Test)
+	row.Scan(&result.Id, &result.Name, &result.Username, &result.Email, &result.Password)
 
-	row.Scan(&result.Id, &result.Name, &result.Username, &result.Email)
+	// _ = auth.VerifyPassword("Test 1", "Test 1")
 
-	return true, result, nil
+	if Oke := auth.VerifyPassword(password, result.Password); Oke{
+		return true, result, nil
+	}
+	
+	return false, result, nil
 }
 
 
