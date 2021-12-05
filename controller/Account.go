@@ -21,7 +21,7 @@ func Login(c*gin.Context){
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	exists, result, _ := account.Login(LoginForm.Username, LoginForm.Email)
+	exists, result, _ := account.Login(LoginForm.Username, LoginForm.Email, LoginForm.Password)
 	if !exists {
 		c.JSON(200, gin.H{"success":false})
 		return

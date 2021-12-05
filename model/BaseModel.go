@@ -11,27 +11,6 @@ type Dao struct{
 	Rows *sql.Rows
 }
 
-func Query(query string, scan func(*sql.Rows) error) error{
-	/*
-	connect, err := database.Connect()
-
-	if err != nil{
-		return err
-	}
-	defer connect.Close()
-	*/
-	
-	rows, err := DB.Query(query)
-
-	if err != nil{
-		return err
-	}
-	
-	defer rows.Close()
-
-	return scan(rows)
-}
-
 func (dao *Dao) Select(param ...interface{}) error{
 	var rows *sql.Rows
 	var err error
@@ -100,6 +79,7 @@ func (dao *Dao) Delete(param ...interface{}) (bool, error) {
 	}
 
 	return true, nil
+}
 
 func (dao *Dao) Insert(param ...interface{}) (bool, error) {
 	if len(param)<1{
