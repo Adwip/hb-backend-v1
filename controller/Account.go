@@ -3,6 +3,8 @@ package controller
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/model/account"
 
+var base = BaseController{}
+
 func AllAccount(c *gin.Context){
 	result, err := account.AllAccount()
 	
@@ -22,6 +24,7 @@ func Login(c*gin.Context){
 		return
 	}
 	exists, result, _ := account.Login(LoginForm.Username, LoginForm.Email, LoginForm.Password)
+	
 	if !exists {
 		c.JSON(200, gin.H{"success":false})
 		return
