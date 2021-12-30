@@ -22,3 +22,9 @@ type LoginForm struct{
 	Password string	`json:"password"`
 	KeepLogin bool	`json:"keepLogin"`
 }
+
+type jwtPayload struct{
+	Id			int
+	Name		string
+	UserType	bool
+}
