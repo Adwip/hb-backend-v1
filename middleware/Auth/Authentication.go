@@ -6,7 +6,6 @@ import "encoding/json"
 import "strings"
 import "crypto/hmac"
 import "encoding/hex"
-import "fmt"
 
 type Header struct{
 	Alg string
