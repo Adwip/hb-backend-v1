@@ -28,8 +28,6 @@ func GenerateToken(alg string, typ string, payload []byte)(string, error){
 	
 	headerString = toBase64(headerJson)
 	payloadString = toBase64(payload)
-	fmt.Println(string(headerJson))
-	fmt.Println(string(payload))
 	mergedString = headerString+"."+payloadString
 	if alg=="SHA256"{
 		hmacDeclare.Write([]byte(mergedString))

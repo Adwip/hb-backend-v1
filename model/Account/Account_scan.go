@@ -28,3 +28,14 @@ type jwtPayload struct{
 	Name		string
 	UserType	bool
 }
+
+type finalResult struct{
+	Id			int
+	Name		string
+	UserType	bool
+	LoginTime	int
+	ValidUntil	int
+	Token		string
+
+
+}
