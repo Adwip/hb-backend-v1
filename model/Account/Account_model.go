@@ -4,6 +4,9 @@ import "hb-backend-v1/model"
 import _"database/sql"
 import _"crypto/md5"
 import "hb-backend-v1/library/auth"
+import tokenGen "hb-backend-v1/middleware/auth"
+import "encoding/json"
+import _"fmt"
 
 var Dao = model.Dao{}
 /*
@@ -47,24 +50,30 @@ func AllAccount() ([]AccountScan, error){
 }
 
 
-func Login(username string, email string, password string)(bool, LoginResult, error){
+func Login(username string, email string, password string)(bool, string, error){
 	// md5 := md5.New()
 	var result LoginResult
 	Dao.Query = "select id, name, username, email, password from account where username = ? OR email = ?"
 	exists, row, error := Dao.SelectOne(username, email)
 	if !exists {
-		return false, result, error
+		return false, "", error
 	}
-	// fmt.Println(Test)
+
 	row.Scan(&result.Id, &result.Name, &result.Username, &result.Email, &result.Password)
 
-	// _ = auth.VerifyPassword("Test 1", "Test 1")
-
-	if Oke := auth.VerifyPassword(password, result.Password); Oke{
-		return true, result, nil
+	if Oke := auth.VerifyPassword(password, result.Password); !Oke{
+		return false, "", error
 	}
-	
-	return false, result, nil
+	payloadJson := jwtPayload{Id:result.Id, Name:result.Name, UserType:true}
+	payload, errJson := json.Marshal(payloadJson)
+	if errJson!=nil{
+		return false, "", errJson
+	}
+	token, errToken := tokenGen.GenerateToken("SHA256", "JWT", payload)
+	if errToken != nil{
+		return false, "", errToken
+	}
+	return true, token, nil
 }
 
 
