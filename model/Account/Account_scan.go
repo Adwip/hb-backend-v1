@@ -23,19 +23,10 @@ type LoginForm struct{
 	KeepLogin bool	`json:"keepLogin"`
 }
 
-type jwtPayload struct{
-	Id			int
-	Name		string
-	UserType	bool
-}
-
 type finalResult struct{
 	Id			int
 	Name		string
 	UserType	bool
-	LoginTime	int
-	ValidUntil	int
+	CreatedAt	string
 	Token		string
-
-
 }
