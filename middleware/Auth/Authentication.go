@@ -1,68 +1,23 @@
 package auth
 
-import "encoding/base64"
-import "crypto/sha256"
-import "encoding/json"
-import "strings"
-import "crypto/hmac"
-import "encoding/hex"
+import "github.com/gin-gonic/gin"
+import "fmt"
 
-type Header struct{
-	Alg string
-	Typ string
-}
+func LoginChecking(c *gin.Context){
+	var isAuthorized bool
+	var header = c.Request.Header
+	var fullPath = c.FullPath()
+	var token, isset = header["Authorization"]
 
-var key string = "12345678"
-
-func GenerateToken(alg string, typ string, payload []byte)(string, error){
-	var headerString, payloadString, signatureString, mergedString string
-	header := Header{Alg: alg,Typ: typ}
-	hmacDeclare := hmac.New(sha256.New, []byte(key))
-
-
-	headerJson, errHeader := json.Marshal(header)
-	if errHeader != nil{
-		return "",errHeader
+	if isset{
+		isAuthorized,_ = authentication.VerifyToken(token[0])
+	}else{
+		isAuthorized = false
 	}
-	
-	headerString = toBase64(headerJson)
-	payloadString = toBase64(payload)
-	mergedString = headerString+"."+payloadString
-	if alg=="SHA256"{
-		hmacDeclare.Write([]byte(mergedString))
-		signatureString = hex.EncodeToString(hmacDeclare.Sum(nil))
+	if isAuthorized || fullPath == "/auth/login"{
+		c.Next()
+		return
 	}
-
-	finalToken := headerString+"."+payloadString+"."+signatureString
-	return finalToken, nil
+	c.AbortWithStatusJSON(401, gin.H{"error": "Akses ditolak"})
 }
 
-func toBase64(data []byte) string {
-	formatString := strings.TrimRight(base64.StdEncoding.EncodeToString(data),"=")
-	return formatString
-}
-
-func getJWT(){
-
-}
-
-func parsingJWT(){
-
-}
-
-func GetName(){
-
-}
-
-func GetID(){
-
-}
-
-func GetUserType(){
-
-}
-
-
-func VerifyToken(token string)(bool, error){
-	return true, nil
-}

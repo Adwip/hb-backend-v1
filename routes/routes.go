@@ -2,10 +2,11 @@ package routes
 
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/controller"
+import "hb-backend-v1/middleware/auth"
 
 func Routes() *gin.Engine {
 	router := gin.New()
-
+	router.Use(auth.LoginChecking)
 	// router.GET("/all-account", controller.AllAccount)
 	// router.POST("/login",controller.Login)
 	router.GET("/",controller.Test)
@@ -19,10 +20,10 @@ func Routes() *gin.Engine {
 		// auth.POST("/destroy",nil)
 	}
 	
-	/*
+	
 	product := router.Group("/product")
 	{
-		product.POST("/add-to-list",nil)
+		product.POST("/add-to-list",controller.AddList)/*
 		product.POST("/add-design",nil)
 		product.GET("/",nil)
 		product.GET("/{ID}",nil)
@@ -34,9 +35,9 @@ func Routes() *gin.Engine {
 		product.GET("/image{ID}",nil)
 		product.GET("/search",nil)
 		product.GET("/list",nil)
-		product.GET("/recommendation",nil)
+		product.GET("/recommendation",nil)*/
 	}
-	*/
+
 	/*
 	user := router.Group("/user")
 	{
