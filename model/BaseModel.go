@@ -86,7 +86,7 @@ func (dao *Dao) Insert(param ...interface{}) (bool, error) {
 		return false, nil
 	}
 
-	_, err := DB.Exec(dao.Query, param)
+	_, err := DB.Exec(dao.Query, param...)
 
 	if err != nil{
 		return false, err

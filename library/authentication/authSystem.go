@@ -30,7 +30,7 @@ func GenerateToken(alg string, typ string, payload []byte)(string, error){
 	mergedEncoded = headerEncoded+"."+payloadEncoded
 	
 	if alg=="SHA256"{
-		signature = sha256encode(mergedEncoded, key)
+		signature = SHA256encode(mergedEncoded, key)
 	}
 
 	finalToken := headerEncoded+"."+payloadEncoded+"."+signature
@@ -92,14 +92,14 @@ func VerifyToken(token string)(bool, error){
 }
 
 func isSHA256KeyValid(headerPayload string, signature string) (bool, error){
-	var expectedSign = sha256encode(headerPayload, key)
+	var expectedSign = SHA256encode(headerPayload, key)
 	if expectedSign == signature {
 		return true, nil
 	}
 	return false, nil
 }
 
-func sha256encode(data string, key string) string{
+func SHA256encode(data string, key string) string{
 	var hmacDeclare = hmac.New(sha256.New, []byte(key))
 	hmacDeclare.Write([]byte(data))
 	var signature = hex.EncodeToString(hmacDeclare.Sum(nil))
