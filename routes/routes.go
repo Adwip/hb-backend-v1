@@ -15,7 +15,7 @@ func Routes() *gin.Engine {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/login",controller.Login)
-		// auth.POST("/registration",nil)
+		auth.POST("/registration",controller.Regristration)
 		// auth.PUT("/password",nil)
 		// auth.POST("/destroy",nil)
 	}

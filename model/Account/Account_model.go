@@ -89,5 +89,10 @@ func Login(username string, email string, password string)(bool, finalResult, er
 }
 
 
-
+func RegistrationUser(form RegistrationForm)(bool, error){
+	_ = form
+	Dao.Query = "INSERT INTO "
+	// insert, := Dao.Insert()
+	return true, nil
+}
 
