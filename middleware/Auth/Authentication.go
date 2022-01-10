@@ -1,7 +1,7 @@
 package auth
 
 import "github.com/gin-gonic/gin"
-import "fmt"
+import "hb-backend-v1/library/authentication"
 
 func LoginChecking(c *gin.Context){
 	var isAuthorized bool
@@ -14,7 +14,7 @@ func LoginChecking(c *gin.Context){
 	}else{
 		isAuthorized = false
 	}
-	if isAuthorized || fullPath == "/auth/login"{
+	if isAuthorized || fullPath == "/auth/login"||fullPath == "/auth/registration"{
 		c.Next()
 		return
 	}
