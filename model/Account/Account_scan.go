@@ -23,6 +23,13 @@ type LoginForm struct{
 	KeepLogin bool	`json:"keepLogin"`
 }
 
+type RegistrationForm struct {
+	Username	string	`json:"username"`
+	Email		string	`json:"email"`
+	Password	string	`json:"password"`
+	UserType	uint8	`json:"userType"`
+}
+
 type finalResult struct{
 	Id			int
 	Name		string
