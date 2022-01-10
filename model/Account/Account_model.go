@@ -4,7 +4,7 @@ import "hb-backend-v1/model"
 import _"database/sql"
 import _"crypto/md5"
 import "hb-backend-v1/library/auth"
-import tokenGen "hb-backend-v1/library/authentication"
+import "hb-backend-v1/library/authentication"
 import "encoding/json"
 import _"fmt"
 import "hb-backend-v1/library/dateTime"
@@ -67,12 +67,12 @@ func Login(username string, email string, password string)(bool, finalResult, er
 	if Oke := auth.VerifyPassword(password, result.Password); !Oke{
 		return false, finalRest, error
 	}
-	payloadJson := tokenGen.Payload{Id:result.Id, Name:result.Name, UserType:true, KeepLogin:true}
+	payloadJson := authentication.Payload{Id:result.Id, Name:result.Name, UserType:true, KeepLogin:true}
 	payload, errJson := json.Marshal(payloadJson)
 	if errJson!=nil{
 		return false, finalRest, errJson
 	}
-	token, errToken := tokenGen.GenerateToken("SHA256", "JWT", payload)
+	token, errToken := authentication.GenerateToken("SHA256", "JWT", payload)
 	if errToken != nil{
 		return false, finalRest, errToken
 	}
@@ -90,9 +90,10 @@ func Login(username string, email string, password string)(bool, finalResult, er
 
 
 func RegistrationUser(form RegistrationForm)(bool, error){
-	_ = form
-	Dao.Query = "INSERT INTO "
-	// insert, := Dao.Insert()
-	return true, nil
+	// _ = form
+	form.Password = authentication.SHA256encode(form.Password, "12345")
+	Dao.Query = "INSERT INTO account (name, username, email, password) VALUES (?, ?, ?, ?)"
+	insert, err := Dao.Insert(form.Name, form.Username, form.Email, form.Password)
+	return insert, err
 }
 

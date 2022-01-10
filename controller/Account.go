@@ -36,12 +36,12 @@ func Regristration(c *gin.Context){
 		c.JSON(404, gin.H{"success":false, "message":err.Error()})
 		return
 	}
-	// success,_ := account.RegistrationUser(RegistrationForm)
-	if true{
+	success,err := account.RegistrationUser(RegistrationForm)
+	if success{
 		c.JSON(200, gin.H{"success":true, "data":RegistrationForm})
 		return
 	}
-	c.JSON(404, gin.H{"success":false, "data":RegistrationForm})
+	c.JSON(404, gin.H{"success":false, "message":err.Error()})
 }
 
 func Test(c *gin.Context){
