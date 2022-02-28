@@ -18,6 +18,6 @@ func LoginChecking(c *gin.Context){
 		c.Next()
 		return
 	}
-	c.AbortWithStatusJSON(401, gin.H{"error": "Akses ditolak"})
+	c.AbortWithStatusJSON(401, gin.H{"status":false, "error": "Akses ditolak"})
 }
 
