@@ -15,6 +15,7 @@ func AllAccount(c *gin.Context){
 
 
 func Login(c*gin.Context){
+
 	var LoginForm account.LoginForm
 	// result, err := account.Login()
 	if err := c.ShouldBindJSON(&LoginForm); err != nil {

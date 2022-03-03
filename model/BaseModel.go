@@ -2,6 +2,7 @@ package model
 
 import "database/sql"
 import "fmt"
+import "hb-backend-v1/config/database"
 // import "reflect"
 
 var DB *sql.DB
@@ -14,6 +15,8 @@ type Dao struct{
 func (dao *Dao) Select(param ...interface{}) error{
 	var rows *sql.Rows
 	var err error
+	// DB = sqlConnection.GetConnection()
+	DB = database.Connection
 	if len(param) > 0{
 		rows, err = DB.Query(dao.Query, param...)
 	}else{
@@ -33,6 +36,7 @@ func (dao *Dao) SelectOne(param ...interface{}) (bool, *sql.Row, error){
 	var result, resultCheck *sql.Row
 	var exists bool
 	var err error
+	DB = database.Connection
 	queryCheck := fmt.Sprintf("SELECT exists (%s)", dao.Query)
 	if len(param) > 0{
 		resultCheck = DB.QueryRow(queryCheck, param...)
@@ -58,6 +62,8 @@ func (dao *Dao) Update(param ...interface{}) (bool, error) {
 		return false, nil
 	}
 	
+	// DB = sqlConnection.GetConnection()
+	DB = database.Connection
 	_, err := DB.Exec(dao.Query, param)
 
 	if err != nil{
@@ -72,6 +78,8 @@ func (dao *Dao) Delete(param ...interface{}) (bool, error) {
 		return false, nil
 	}
 	
+	// DB = sqlConnection.GetConnection()
+	DB = database.Connection
 	_, err := DB.Exec(dao.Query, param)
 
 	if err != nil{
@@ -86,6 +94,8 @@ func (dao *Dao) Insert(param ...interface{}) (bool, error) {
 		return false, nil
 	}
 
+	// DB = sqlConnection.GetConnection()
+	DB = database.Connection
 	_, err := DB.Exec(dao.Query, param...)
 
 	if err != nil{
