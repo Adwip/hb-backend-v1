@@ -37,3 +37,9 @@ type finalResult struct{
 	CreatedAt	string
 	Token		string
 }
+
+type UpdatePasswordForm struct{
+	OldPassword 	string	`json:"oldPassword"`
+	NewPassword 	string	`json:"newPassword"`
+	ConfirmPassword string	`json:"confirmPassword"`
+}
