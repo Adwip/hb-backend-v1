@@ -34,7 +34,7 @@ func Regristration(c *gin.Context){
 	var RegistrationForm account.RegistrationForm
 
 	if err := c.ShouldBindJSON(&RegistrationForm); err != nil{
-		c.JSON(404, gin.H{"success":false, "message":err.Error()})
+		c.JSON(400, gin.H{"success":false, "message":err.Error()})
 		return
 	}
 	success,err := account.RegistrationUser(RegistrationForm)
@@ -42,7 +42,18 @@ func Regristration(c *gin.Context){
 		c.JSON(200, gin.H{"success":true, "data":RegistrationForm})
 		return
 	}
-	c.JSON(404, gin.H{"success":false, "message":err.Error()})
+	c.JSON(400, gin.H{"success":false, "message":err.Error()})
+}
+
+func UpdatePassword(c *gin.Context){
+	var UpdatePasswordForm account.UpdatePasswordForm
+
+	if err:= c.ShouldBindJSON(&UpdatePasswordForm); err != nil{
+		c.JSON(400, gin.H{"success":false})
+		return
+	}
+	// success, err := account.UpdatePassword()
+	c.JSON(200, gin.H{"success":true, "data":UpdatePasswordForm})
 }
 
 func Test(c *gin.Context){
