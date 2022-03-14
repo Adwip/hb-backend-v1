@@ -7,11 +7,12 @@ import "strings"
 import "crypto/hmac"
 import "encoding/hex"
 import "fmt"
+import "os"
 
 
 
 
-var key string = "12345678"
+var key string = os.Getenv("JWT_KEY")
 var payloadJson Payload
 var RawStdEncoding = base64.StdEncoding.WithPadding(-1)
 
@@ -54,10 +55,6 @@ func decodeBase64(data string)([]byte, error){
 }
 
 func getHeader(header string){
-
-}
-
-func getPayload(){
 
 }
 
@@ -111,24 +108,4 @@ func compareSignature(message, signature, key []byte) bool{
 	hmacDeclare.Write(message)
 	expectedMAC := hmacDeclare.Sum(nil)
 	return hmac.Equal(signature, expectedMAC)
-}
-
-func getJWT(){
-
-}
-
-func parsingJWT(){
-
-}
-
-func GetName(){
-
-}
-
-func GetID(){
-
-}
-
-func GetUserType(){
-
 }
