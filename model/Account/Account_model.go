@@ -8,6 +8,8 @@ import "hb-backend-v1/library/authentication"
 import "encoding/json"
 import _"fmt"
 import "hb-backend-v1/library/dateTime"
+import "hb-backend-v1/form/accountForm"
+import "github.com/google/uuid"
 
 var Dao = model.Dao{}
 /*
@@ -51,49 +53,55 @@ func AllAccount() ([]AccountScan, error){
 }
 
 
-func Login(username string, email string, password string)(bool, finalResult, error){
+func Login(unameMail string, password string)(bool, map[string]interface{}, error){
 	// md5 := md5.New()
-	var result LoginResult
-	var finalRest finalResult
+	var result accountForm.LoginResult
+	var loginResult = make(map[string]interface{})
 	timeNow := dateTime.DateTimeNow()
 	Dao.Query = "select id, name, username, email, password from account where username = ? OR email = ?"
-	exists, row, error := Dao.SelectOne(username, email)
+	exists, row, error := Dao.SelectOne(unameMail, unameMail)
 	if !exists {
-		return false, finalRest, error
+		return false, loginResult, error
 	}
 
 	row.Scan(&result.Id, &result.Name, &result.Username, &result.Email, &result.Password)
 
 	if Oke := auth.VerifyPassword(password, result.Password); !Oke{
-		return false, finalRest, error
+		return false, loginResult, error
 	}
 	payloadJson := authentication.Payload{Id:result.Id, Name:result.Name, UserType:true, KeepLogin:true}
 	payload, errJson := json.Marshal(payloadJson)
 	if errJson!=nil{
-		return false, finalRest, errJson
+		return false, loginResult, errJson
 	}
 	token, errToken := authentication.GenerateToken("SHA256", "JWT", payload)
 	if errToken != nil{
-		return false, finalRest, errToken
+		return false, loginResult, errToken
 	}
 
 	// result := finalResult{result.Id, result.Name, true, timeNow, token}
-	finalRest.Id = result.Id
-	finalRest.Name = result.Name
-	finalRest.UserType = true
-	finalRest.CreatedAt = timeNow
-	finalRest.Token = token
+	loginResult["id"] = result.Id
+	loginResult["name"] = result.Name
+	loginResult["userType"] = true
+	loginResult["createdAt"] = timeNow
+	loginResult["token"] = token
 
 
-	return true, finalRest, nil
+	return true, loginResult, nil
 }
+/*
+func UpdatePassword(form UpdatePasswordForm)bool{
+	query := "update account where "
+	result, err := Dao.Update(username, email)
+}*/
 
 
-func RegistrationUser(form RegistrationForm)(bool, error){
+func RegistrationUser(form accountForm.RegistrationForm)(bool, error){
 	// _ = form
 	form.Password = authentication.SHA256encode(form.Password, "12345")
-	Dao.Query = "INSERT INTO account (name, username, email, password) VALUES (?, ?, ?, ?)"
-	insert, err := Dao.Insert(form.Name, form.Username, form.Email, form.Password)
+	id := uuid.New()
+	Dao.Query = "INSERT INTO account (id, name, username, email, password) VALUES (?, ?, ?, ?, ?)"
+	insert, err := Dao.QueryModifier(id, form.Name, form.Username, form.Email, form.Password)
 	return insert, err
 }
 
