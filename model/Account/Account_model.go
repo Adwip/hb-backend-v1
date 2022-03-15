@@ -1,81 +1,88 @@
 package account
 
-import "hb-backend-v1/model"
-import _"database/sql"
-import _"crypto/md5"
-import "hb-backend-v1/library/auth"
-import "hb-backend-v1/library/authentication"
-import "encoding/json"
-import _"fmt"
-import "hb-backend-v1/library/dateTime"
-import "hb-backend-v1/form/accountForm"
-import "github.com/google/uuid"
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
 
-var Dao = model.Dao{}
-/*
-func AllAccount() ([]AccountScan, error){
-	var result []AccountScan
-	err := model.Query("select id, name, username, email from account",func(rows *sql.Rows)error{
-		for rows.Next(){
-			var each = AccountScan{}
-			var err = rows.Scan(&each.Id, &each.Name, &each.Username, &each.Email)
-			if err != nil{
-				return err
-			}
-			result = append(result, each)
-		}
-		return nil
-	})
-	if err != nil{
-		return nil,err
-	}
-	return result,nil
-}*/
+	"hb-backend-v1/form/accountForm"
+	"hb-backend-v1/library/auth"
+	"hb-backend-v1/library/authentication"
+	"hb-backend-v1/library/dateTime"
+	"hb-backend-v1/model"
+	"hb-backend-v1/model/account/entity"
 
-func AllAccount() ([]AccountScan, error){
-	var result []AccountScan
-	Dao.Query = "select id, name, username, email from account"
-	err := Dao.Select()
-	if err != nil{
-		return nil,err
+	"github.com/google/uuid"
+)
+
+type AccountModel struct {
+	DB *sql.DB
+}
+
+func InitAccountModel(database *sql.DB) AccountModel {
+	return AccountModel{
+		DB: database,
 	}
-	for Dao.Rows.Next(){
-		var each = AccountScan{}
-		var err = Dao.Rows.Scan(&each.Id, &each.Name, &each.Username, &each.Email)
-		if err != nil{
+}
+
+func (am *AccountModel) AllAccount() ([]entity.AccountScan, error) {
+	var result []entity.AccountScan
+	var dao = model.InitDao("select id, name, username, email from account")
+	// Dao.Query =
+	err := dao.Select()
+	if err != nil {
+		return nil, err
+	}
+	for dao.Rows.Next() {
+		var each = entity.AccountScan{}
+		var err = dao.Rows.Scan(&each.Id, &each.Name, &each.Username, &each.Email)
+		if err != nil {
 			return nil, err
 		}
 		result = append(result, each)
 	}
-	defer Dao.Rows.Close()
+	defer dao.Rows.Close()
 
-	return result,nil
+	return result, nil
 }
 
-
-func Login(unameMail string, password string)(bool, map[string]interface{}, error){
+func (am *AccountModel) Login(unameMail string, password string) (bool, map[string]interface{}, error) {
 	// md5 := md5.New()
-	var result accountForm.LoginResult
+	var result []entity.LoginResult
 	var loginResult = make(map[string]interface{})
 	timeNow := dateTime.DateTimeNow()
-	Dao.Query = "select id, name, username, email, password from account where username = ? OR email = ?"
-	exists, row, error := Dao.SelectOne(unameMail, unameMail)
-	if !exists {
-		return false, loginResult, error
+	// Dao.Query =
+	query := "select id, name, username, email, password from account where username = $1 OR email = $1"
+	// var parameter []interface{}
+	// if unameMail != "" {
+	// 	parameter = append(parameter, unameMail)
+	// }
+	rows, err := am.DB.Query(query, unameMail)
+	if err != nil {
+		return false, loginResult, err
+	}
+	// row, error := dao.SelectOne(parameter)
+	// if !exists {
+	// return false, loginResult, error
+	// }
+
+	fmt.Println("error")
+
+	err = rows.Scan(&result)
+	if err != nil {
+		return false, loginResult, err
 	}
 
-	row.Scan(&result.Id, &result.Name, &result.Username, &result.Email, &result.Password)
-
-	if Oke := auth.VerifyPassword(password, result.Password); !Oke{
-		return false, loginResult, error
+	if oke := auth.VerifyPassword(password, result.Password); !oke {
+		return false, loginResult, nil
 	}
-	payloadJson := authentication.Payload{Id:result.Id, Name:result.Name, UserType:true, KeepLogin:true}
+	payloadJson := authentication.Payload{Id: result.Id, Name: result.Name, UserType: true, KeepLogin: true}
 	payload, errJson := json.Marshal(payloadJson)
-	if errJson!=nil{
+	if errJson != nil {
 		return false, loginResult, errJson
 	}
 	token, errToken := authentication.GenerateToken("SHA256", "JWT", payload)
-	if errToken != nil{
+	if errToken != nil {
 		return false, loginResult, errToken
 	}
 
@@ -86,22 +93,20 @@ func Login(unameMail string, password string)(bool, map[string]interface{}, erro
 	loginResult["createdAt"] = timeNow
 	loginResult["token"] = token
 
-
 	return true, loginResult, nil
 }
-/*
-func UpdatePassword(form UpdatePasswordForm)bool{
-	query := "update account where "
-	result, err := Dao.Update(username, email)
-}*/
 
+// func UpdatePassword(form UpdatePasswordForm)bool{
+// 	query := "update account where "
+// 	result, err := Dao.Update(username, email)
+// }
 
-func RegistrationUser(form accountForm.RegistrationForm)(bool, error){
+func (am *AccountModel) RegistrationUser(form accountForm.RegistrationForm) (bool, error) {
 	// _ = form
 	form.Password = authentication.SHA256encode(form.Password, "12345")
 	id := uuid.New()
-	Dao.Query = "INSERT INTO account (id, name, username, email, password) VALUES (?, ?, ?, ?, ?)"
-	insert, err := Dao.QueryModifier(id, form.Name, form.Username, form.Email, form.Password)
+	dao := model.InitDao("INSERT INTO account (id, name, username, email, password) VALUES (?, ?, ?, ?, ?)")
+	// Dao.Query =
+	insert, err := dao.QueryModifier(id, form.Name, form.Username, form.Email, form.Password)
 	return insert, err
 }
-

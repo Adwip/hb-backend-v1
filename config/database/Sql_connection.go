@@ -1,21 +1,40 @@
 package database
 
-import "database/sql"
-import _ "github.com/go-sql-driver/mysql"
-import "fmt"
-import "os"
+import (
+	"database/sql"
+	"fmt"
+	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+)
 
 var connection *sql.DB
 
-func InitDB(){
-	// var err error
-	connResult, err := sql.Open("mysql",os.Getenv("MY_SQL_CONNECTION"))
+// type DB struct {
+// 	connection *sql.DB
+// }
 
-	if err != nil{
+// func (db *DB) Init(){
+// 	//koneksi
+// }
+
+// func (db *DB) GetConnection() *sql.DB{
+// 	return db.connection
+// }
+
+// func GetConfiguration() *DB{
+// 	return &DB
+// }
+
+func InitDB() {
+	// var err error
+	connResult, err := sql.Open("mysql", os.Getenv("MY_SQL_CONNECTION"))
+
+	if err != nil {
 		fmt.Println("Failed to connect DB", err)
 	}
 
-	if err = connResult.Ping(); err != nil{
+	if err = connResult.Ping(); err != nil {
 		fmt.Println("DB Unreachabel", err)
 	}
 
@@ -23,6 +42,6 @@ func InitDB(){
 	connection = connResult
 }
 
-func GetConnection() *sql.DB{
+func GetConnection() *sql.DB {
 	return connection
 }
