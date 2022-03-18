@@ -2,7 +2,7 @@ package model
 
 import "database/sql"
 import "fmt"
-import "hb-backend-v1/config/database"
+import "hb-backend-v1/config"
 // import "reflect"
 
 var DB *sql.DB
@@ -15,7 +15,7 @@ type Dao struct{
 func (dao *Dao) Select(param ...interface{}) error{
 	var rows *sql.Rows
 	var err error
-	DB = database.GetConnection()
+	DB = config.GetConnection()
 	if len(param) > 0{
 		rows, err = DB.Query(dao.Query, param...)
 	}else{
@@ -35,8 +35,8 @@ func (dao *Dao) SelectOne(param ...interface{}) (bool, *sql.Row, error){
 	var result, resultCheck *sql.Row
 	var exists bool
 	var err error
-	DB = database.GetConnection()
-	// DB = database.Connection
+	DB = config.GetConnection()
+	// DB = config.Connection
 	queryCheck := fmt.Sprintf("SELECT exists (%s)", dao.Query)
 	if len(param) > 0{
 		resultCheck = DB.QueryRow(queryCheck, param...)
@@ -61,7 +61,7 @@ func (dao *Dao) QueryModifier(param ...interface{}) (bool, error) {
 	if len(param)<1{
 		return false, nil
 	}
-	DB = database.GetConnection()
+	DB = config.GetConnection()
 	_, err := DB.Exec(dao.Query, param...)
 
 	if err != nil{

@@ -1,7 +1,7 @@
 package main
 
 import "hb-backend-v1/routes"
-import "hb-backend-v1/config/database"
+import "hb-backend-v1/config"
 import "fmt"
 import "github.com/joho/godotenv"
 
@@ -12,6 +12,6 @@ func main(){
 	if err!=nil{
 		fmt.Println("Failed to load .env file")
 	}
-	database.InitDB()
+	config.InitDB()
 	router.Run(":3001")
 }
