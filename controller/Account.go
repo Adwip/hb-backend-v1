@@ -1,9 +1,12 @@
 package controller
 
 import "github.com/gin-gonic/gin"
-import "hb-backend-v1/model/account"
-import "hb-backend-v1/form/accountForm"
 
+import "hb-backend-v1/repository/account"
+import accountForm "hb-backend-v1/model/account"
+import "hb-backend-v1/model"
+
+/*
 func AllAccount(c *gin.Context) {
 	result, err := account.AllAccount()
 
@@ -12,24 +15,29 @@ func AllAccount(c *gin.Context) {
 	} else {
 		c.JSON(200, gin.H{"success": true, "result": result})
 	}
-}
+}*/
 
 func Login(c *gin.Context) {
 
 	var LoginForm accountForm.LoginForm
 	// result, err := account.Login()
 	if err := c.ShouldBindJSON(&LoginForm); err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		// c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(500, model.WebResponse{Success: false})
 		return
 	}
-	exists, result, _ := account.Login(LoginForm.UnameMail, LoginForm.Password)
-	if !exists {
-		c.JSON(200, gin.H{"success": false, "data": result})
+	// c.JSON(200, model.WebResponse{Success: true, Data: LoginForm})
+
+	result := account.Login(LoginForm.UnameMail, LoginForm.Password)
+	if result.Success {
+		c.JSON(200, model.WebResponse{Success: true, Data: result.Data})
 		return
 	}
-	c.JSON(200, gin.H{"success": true, "data": result})
+	c.JSON(200, model.WebResponse{Success: false, Msg: result.Msg})
+
 }
 
+/*
 func Regristration(c *gin.Context) {
 	var RegistrationForm accountForm.RegistrationForm
 
@@ -43,7 +51,7 @@ func Regristration(c *gin.Context) {
 		return
 	}
 	c.JSON(400, gin.H{"success": false, "message": err.Error()})
-}
+}*/
 
 /*
 func UpdatePassword(c *gin.Context){
@@ -61,6 +69,7 @@ func UpdatePassword(c *gin.Context){
 	c.JSON(200, gin.H{"success":true, "data":UpdatePasswordForm})
 }*/
 
+/*
 func Test(c *gin.Context) {
 	c.JSON(200, gin.H{"success": true, "result": "This is test"})
-}
+}*/
