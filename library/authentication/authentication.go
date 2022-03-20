@@ -9,33 +9,29 @@ import "encoding/hex"
 import "fmt"
 import "os"
 
-
-
-
 var key string = os.Getenv("JWT_KEY")
 var payloadJson Payload
 var RawStdEncoding = base64.StdEncoding.WithPadding(-1)
 
-func GenerateToken(alg string, typ string, payload []byte)(string, error){
+func GenerateToken(alg string, typ string, payload []byte) (string, error) {
 	var headerEncoded, payloadEncoded, signature, mergedEncoded string
-	header := Header{Alg: alg,Typ: typ}
+	header := Header{Alg: alg, Typ: typ}
 
-
-	headerJson, errHeader := json.Marshal(header)//struct -> byte
-	if errHeader != nil{
-		return "",errHeader
+	headerJson, errHeader := json.Marshal(header) //struct -> byte
+	if errHeader != nil {
+		return "", errHeader
 	}
-	
-	headerEncoded = encodeBase64(headerJson)//byte -> string
-	payloadEncoded = encodeBase64(payload)//byte -> string
-	mergedEncoded = headerEncoded+"."+payloadEncoded
-	
-	if alg=="SHA256"{
+
+	headerEncoded = encodeBase64(headerJson) //byte -> string
+	payloadEncoded = encodeBase64(payload)   //byte -> string
+	mergedEncoded = headerEncoded + "." + payloadEncoded
+
+	if alg == "SHA256" {
 		signature = SHA256encode(mergedEncoded, key)
 	}
 
-	finalToken := headerEncoded+"."+payloadEncoded+"."+signature
-	
+	finalToken := headerEncoded + "." + payloadEncoded + "." + signature
+
 	// result, _ := VerifyToken(finalToken)
 	// fmt.Printf("Token => %t", result)
 	return finalToken, nil
@@ -46,49 +42,44 @@ func encodeBase64(data []byte) string {
 	return formatString
 }
 
-func decodeBase64(data string)([]byte, error){
+func decodeBase64(data string) ([]byte, error) {
 	result, err := RawStdEncoding.DecodeString(data)
-	if err != nil{
+	if err != nil {
 		return result, err
 	}
 	return result, nil
 }
 
-func getHeader(header string){
-
-}
-
-
-func VerifyToken(token string)(bool, error){
+func VerifyToken(token string) (bool, error) {
 	var headerJson Header
-	split := strings.Split(token,".")
-	if length := len(split); length != 3{
+	split := strings.Split(token, ".")
+	if length := len(split); length != 3 {
 		return false, nil
 	}
 
-	headerDecoded,_	:= decodeBase64(split[0])
-	headerErr		:= json.Unmarshal(headerDecoded, &headerJson)
-	if headerErr != nil{
+	headerDecoded, _ := decodeBase64(split[0])
+	headerErr := json.Unmarshal(headerDecoded, &headerJson)
+	if headerErr != nil {
 		fmt.Println(headerErr.Error())
 	}
 	// _				= headerErr
-	payloadDecoded,_:= decodeBase64(split[1])
-	payloadErr		:= json.Unmarshal(payloadDecoded, &payloadJson)
-	if payloadErr != nil{
+	payloadDecoded, _ := decodeBase64(split[1])
+	payloadErr := json.Unmarshal(payloadDecoded, &payloadJson)
+	if payloadErr != nil {
 		fmt.Println(payloadErr.Error())
 	}
 	// _				= payloadErr
-	signature			 	:= split[2]
-	headerPayload	:= split[0]+"."+split[1]
+	signature := split[2]
+	headerPayload := split[0] + "." + split[1]
 
-	if alg := headerJson.Alg; alg == "SHA256"{
+	if alg := headerJson.Alg; alg == "SHA256" {
 		result, _ := isSHA256KeyValid(headerPayload, signature)
 		return result, nil
 	}
 	return false, nil
 }
 
-func isSHA256KeyValid(headerPayload string, signature string) (bool, error){
+func isSHA256KeyValid(headerPayload string, signature string) (bool, error) {
 	var expectedSign = SHA256encode(headerPayload, key)
 	if expectedSign == signature {
 		return true, nil
@@ -96,16 +87,23 @@ func isSHA256KeyValid(headerPayload string, signature string) (bool, error){
 	return false, nil
 }
 
-func SHA256encode(data string, key string) string{
+func SHA256encode(data string, key string) string {
 	var hmacDeclare = hmac.New(sha256.New, []byte(key))
 	hmacDeclare.Write([]byte(data))
 	var signature = hex.EncodeToString(hmacDeclare.Sum(nil))
 	return signature
 }
 
-func compareSignature(message, signature, key []byte) bool{
+func PasswordVerification(userRequest string, dbResponse string) bool {
+	userRequest = SHA256encode(userRequest, "12345")
+	return userRequest == dbResponse
+}
+
+/*
+func compareSignature(message, signature, key []byte) bool {
 	var hmacDeclare = hmac.New(sha256.New, key)
 	hmacDeclare.Write(message)
 	expectedMAC := hmacDeclare.Sum(nil)
 	return hmac.Equal(signature, expectedMAC)
 }
+*/

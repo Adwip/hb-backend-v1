@@ -4,8 +4,8 @@ import "hb-backend-v1/repository"
 
 // import _ "database/sql"
 // import _ "crypto/md5"
-import "hb-backend-v1/library/auth"
 import "hb-backend-v1/library/authentication"
+import "hb-backend-v1/library"
 
 import "encoding/json"
 
@@ -60,45 +60,51 @@ func AllAccount() ([]AccountScan, error) {
 }*/
 
 func Login(unameMail string, password string) model.RepoResponse {
-	// md5 := md5.New()
 	var result accountForm.LoginResult
+	var jwtLib = library.JWT{}
 	timeNow := dateTime.DateTimeNow()
 
-	Dao.Query = "select name, username, email, password from account where username = ? OR email = ?"
+	Dao.Query = "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
 	exists, row, _ := Dao.SelectOne(unameMail, unameMail)
 	if !exists {
-		// return false, loginResult, error
-		return model.RepoResponse{Success: false, Msg: "User not exists"}
+		return model.RepoResponse{Success: false, Msg: "User not exists | no result"}
 	}
 
-	row.Scan(&result.Name, &result.Username, &result.Email, &result.Password)
+	row.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
 
-	if Oke := auth.VerifyPassword(password, result.Password); !Oke {
-		// return false, loginResult, error
-		return model.RepoResponse{Success: false, Msg: "User not exists"}
+	if Approved := authentication.PasswordVerification(password, result.Password); !Approved {
+		return model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
 	}
-	payloadJson := authentication.Payload{Id: result.Id, Name: result.Name, UserType: true, KeepLogin: true}
-	payload, errJson := json.Marshal(payloadJson)
+
+	JWTPayload := accountForm.JWTPayload{
+		UserID:         result.UserID,
+		FirstName:      result.FirstName,
+		PrimaryAccount: result.PrimaryAccount,
+		AccountStatus:  result.AccountStatus,
+		CreatedAt:      timeNow,
+	}
+
+	payload, errJson := json.Marshal(JWTPayload)
 	if errJson != nil {
-		// return false, loginResult, errJson
-		return model.RepoResponse{Success: false, Msg: "Login rejected"}
+		return model.RepoResponse{Success: false, Msg: "Failed to generate token"}
 	}
-	token, errToken := authentication.GenerateToken("SHA256", "JWT", payload)
+	// token, errToken := authentication.GenerateToken("SHA256", "JWT", payload)
+	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload)
 	if errToken != nil {
-		// return false, loginResult, errToken
 		return model.RepoResponse{Success: false, Msg: "Login rejected"}
 	}
 
-	// result := finalResult{result.Id, result.Name, true, timeNow, token}
-	authResult := accountForm.AuthResult{
-		Name:      result.Name,
-		Username:  result.Username,
-		CreatedAt: timeNow,
-		Token:     token,
+	authResponse := accountForm.AuthResponse{
+		UserID:         result.UserID,
+		FirstName:      result.FirstName,
+		PrimaryAccount: result.PrimaryAccount,
+		AccountStatus:  result.AccountStatus,
+		CreatedAt:      timeNow,
+		Token:          token,
 	}
 
 	// return true, loginResult, nil
-	return model.RepoResponse{Success: true, Data: authResult, Msg: "Login rejected"}
+	return model.RepoResponse{Success: true, Data: authResponse, Msg: "Login rejected"}
 }
 
 /*
