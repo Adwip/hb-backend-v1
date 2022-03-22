@@ -3,7 +3,7 @@ package library
 import accountForm "hb-backend-v1/model/account"
 import "encoding/base64"
 import "encoding/json"
-import "strings"
+import _ "strings"
 import "os"
 
 type JWT struct {
@@ -41,11 +41,22 @@ func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte) (string, e
 	return finalToken, nil
 }
 
-func (jwt *JWT) VerifiyToken(token string) (bool, error) {
-	splittedToken := strings.Split(token, ".")
-
-	if length := len(splittedToken); length != 3 {
-		return false, nil
+func (jwt *JWT) VerifiyToken(header string, payload string, signature string, headerObj accountForm.JWTHeader) bool {
+	// mergedHeaderPayload := ""
+	var encodedHeaderPayload string
+	var cryptoEncode = Crypto{}
+	mergedHeaderPayload := header + "." + payload
+	if headerObj.Alg == "SHA256" {
+		encodedHeaderPayload = cryptoEncode.SHA256(mergedHeaderPayload, key)
+	} else {
+		encodedHeaderPayload = ""
 	}
-	return true, nil
+	return encodedHeaderPayload == signature
+}
+
+func (jwt *JWT) DecodeToken(token string) (bool, accountForm.JWTHeader, accountForm.JWTPayload, error) {
+	var header accountForm.JWTHeader
+	var payload accountForm.JWTPayload
+
+	return true, header, payload, nil
 }

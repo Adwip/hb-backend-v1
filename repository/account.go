@@ -1,13 +1,18 @@
-package account
+package repository
 
-import "hb-backend-v1/repository"
-import "hb-backend-v1/library/authentication"
-import "hb-backend-v1/library"
-import "encoding/json"
-import "hb-backend-v1/library/dateTime"
-import accountForm "hb-backend-v1/model/account"
-import "hb-backend-v1/model"
-import "database/sql"
+import (
+	"encoding/json"
+	"fmt"
+	"hb-backend-v1/library"
+	"hb-backend-v1/library/authentication"
+	"hb-backend-v1/library/dateTime"
+
+	"hb-backend-v1/model"
+	accountForm "hb-backend-v1/model/account"
+
+	"database/sql"
+	"hb-backend-v1/config"
+)
 
 // import _ "database/sql"
 // import _ "crypto/md5"
@@ -58,13 +63,16 @@ func AllAccount() ([]AccountScan, error) {
 }*/
 
 type AccountObj struct {
-	baseRepo *repository.DaoRepo
+	// baseRepo *DaoRepo
+	conn *sql.DB
 }
 
 func Account() *AccountObj {
-	repoHandler := repository.Dao()
+	// repoHandler := Dao()
+	database := config.Database()
+	connSring := database.GetConnection()
 	account := &AccountObj{
-		baseRepo: repoHandler,
+		conn: connSring,
 	}
 	return account
 }
@@ -74,12 +82,21 @@ func (account *AccountObj) Login(unameMail string, password string) model.RepoRe
 	var jwtLib = library.JWT{}
 	timeNow := dateTime.DateTimeNow()
 
-	account.baseRepo.Query = "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
-	query := account.baseRepo.SelectOne(unameMail, unameMail)
+	// account.baseRepo.Query = "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
+	// query := account.baseRepo.SelectOne(unameMail, unameMail)
+	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
+	query := account.conn.QueryRow(sqlStatement, unameMail, unameMail)
 	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
-	if err == sql.ErrNoRows {
+	fmt.Println(err)
+	if err == sql.ErrNoRows || err == sql.ErrConnDone {
 		return model.RepoResponse{Success: false, Msg: "User not exists | no result"}
 	}
+	// fmt.Println(sql.ErrConnDone)
+	// fmt.Println(sql.ErrNoRows)
+	// fmt.Println(account.conn)
+	// fmt.Println(result)
+	// fmt.Println("Database => ", result.Password)
+	// fmt.Println("User => ", password)
 
 	// row.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
 
