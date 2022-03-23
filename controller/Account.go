@@ -1,16 +1,12 @@
 package controller
 
 import "hb-backend-v1/model"
-
-// "hb-backend-v1/model/account"
 import "hb-backend-v1/repository"
-
 import "github.com/gin-gonic/gin"
+import accountForm "hb-backend-v1/model/account"
 
 // import import "hb-backend-v1/config"
-
-import accountForm "hb-backend-v1/model/account"
-import _ "hb-backend-v1/repository/account"
+// "hb-backend-v1/model/account"
 
 /*
 func AllAccount(c *gin.Context) {
@@ -26,7 +22,8 @@ func AllAccount(c *gin.Context) {
 func Login(c *gin.Context) {
 	// database := config.Database()
 	// fmt.Println(database.GetConnection())
-	account := repository.Account()
+	// _ = c.Request.WithContext()
+	account := repository.Account(c)
 
 	var LoginForm accountForm.LoginForm
 	// result, err := account.Login()
