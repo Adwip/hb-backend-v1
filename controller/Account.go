@@ -1,16 +1,12 @@
 package controller
 
 import "hb-backend-v1/model"
-
-// "hb-backend-v1/model/account"
 import "hb-backend-v1/repository"
-
 import "github.com/gin-gonic/gin"
+import accountForm "hb-backend-v1/model/account"
 
 // import import "hb-backend-v1/config"
-
-import accountForm "hb-backend-v1/model/account"
-import _ "hb-backend-v1/repository/account"
+// "hb-backend-v1/model/account"
 
 /*
 func AllAccount(c *gin.Context) {
