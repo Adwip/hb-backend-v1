@@ -1,16 +1,17 @@
 package repository
 
 import "encoding/json"
-import "fmt"
+import _ "fmt"
 import "hb-backend-v1/library"
 import "hb-backend-v1/library/authentication"
 import "hb-backend-v1/library/dateTime"
-
 import "hb-backend-v1/model"
 import accountForm "hb-backend-v1/model/account"
-
 import "database/sql"
 import "hb-backend-v1/config"
+import "github.com/gin-gonic/gin"
+import "context"
+import "time"
 
 // import _ "database/sql"
 // import _ "crypto/md5"
@@ -62,44 +63,39 @@ func AllAccount() ([]AccountScan, error) {
 
 type AccountObj struct {
 	// baseRepo *DaoRepo
-	conn *sql.DB
+	conn   *sql.DB
+	ctx    *context.Context
+	cancel *context.CancelFunc
 }
 
-func Account() *AccountObj {
-	// repoHandler := Dao()
+func Account(c *gin.Context) *AccountObj {
 	database := config.Database()
 	connSring := database.GetConnection()
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	account := &AccountObj{
-		conn: connSring,
+		conn:   connSring,
+		ctx:    &ctx,
+		cancel: &cancel,
 	}
 	return account
 }
 
-func (account *AccountObj) Login(unameMail string, password string) model.RepoResponse {
+func (account *AccountObj) Login(unameMail string, password string) *model.RepoResponse {
 	var result accountForm.LoginResult
 	var jwtLib = library.JWT{}
 	timeNow := dateTime.DateTimeNow()
 
-	// account.baseRepo.Query = "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
-	// query := account.baseRepo.SelectOne(unameMail, unameMail)
 	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
-	query := account.conn.QueryRow(sqlStatement, unameMail, unameMail)
+	query := account.conn.QueryRowContext(*account.ctx, sqlStatement, unameMail, unameMail)
 	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
-	fmt.Println(err)
-	if err == sql.ErrNoRows || err == sql.ErrConnDone {
-		return model.RepoResponse{Success: false, Msg: "User not exists | no result"}
+	if err == sql.ErrNoRows {
+		return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
+	} else if err != nil {
+		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
-	// fmt.Println(sql.ErrConnDone)
-	// fmt.Println(sql.ErrNoRows)
-	// fmt.Println(account.conn)
-	// fmt.Println(result)
-	// fmt.Println("Database => ", result.Password)
-	// fmt.Println("User => ", password)
-
-	// row.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
-
+	// fmt.Println(err)
 	if Approved := authentication.PasswordVerification(password, result.Password); !Approved {
-		return model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
+		return &model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
 	}
 
 	JWTPayload := accountForm.JWTPayload{
@@ -112,12 +108,11 @@ func (account *AccountObj) Login(unameMail string, password string) model.RepoRe
 
 	payload, errJson := json.Marshal(JWTPayload)
 	if errJson != nil {
-		return model.RepoResponse{Success: false, Msg: "Failed to generate token"}
+		return &model.RepoResponse{Success: false, Msg: "Failed to generate token"}
 	}
-	// token, errToken := authentication.GenerateToken("SHA256", "JWT", payload)
 	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload)
 	if errToken != nil {
-		return model.RepoResponse{Success: false, Msg: "Login rejected"}
+		return &model.RepoResponse{Success: false, Msg: "Login rejected"}
 	}
 
 	authResponse := accountForm.AuthResponse{
@@ -129,8 +124,7 @@ func (account *AccountObj) Login(unameMail string, password string) model.RepoRe
 		Token:          token,
 	}
 
-	// return true, loginResult, nil
-	return model.RepoResponse{Success: true, Data: authResponse, Msg: "Login rejected"}
+	return &model.RepoResponse{Success: true, Data: authResponse}
 }
 
 /*

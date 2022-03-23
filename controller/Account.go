@@ -22,7 +22,8 @@ func AllAccount(c *gin.Context) {
 func Login(c *gin.Context) {
 	// database := config.Database()
 	// fmt.Println(database.GetConnection())
-	account := repository.Account()
+	// _ = c.Request.WithContext()
+	account := repository.Account(c)
 
 	var LoginForm accountForm.LoginForm
 	// result, err := account.Login()
