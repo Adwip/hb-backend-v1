@@ -62,10 +62,9 @@ func AllAccount() ([]AccountScan, error) {
 }*/
 
 type AccountObj struct {
-	// baseRepo *DaoRepo
 	conn   *sql.DB
 	ctx    *context.Context
-	cancel *context.CancelFunc
+	cancel context.CancelFunc
 }
 
 func Account(c *gin.Context) *AccountObj {
@@ -75,7 +74,7 @@ func Account(c *gin.Context) *AccountObj {
 	account := &AccountObj{
 		conn:   connSring,
 		ctx:    &ctx,
-		cancel: &cancel,
+		cancel: cancel,
 	}
 	return account
 }
@@ -84,7 +83,8 @@ func (account *AccountObj) Login(unameMail string, password string) *model.RepoR
 	var result accountForm.LoginResult
 	var jwtLib = library.JWT{}
 	timeNow := dateTime.DateTimeNow()
-
+	defer account.cancel() //=> Error is from here, but I need to call cancel() which as field in the Account struct
+	// fmt.Println(*account.cancel)
 	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(*account.ctx, sqlStatement, unameMail, unameMail)
 	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
