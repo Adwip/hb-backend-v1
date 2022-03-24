@@ -23,7 +23,7 @@ func Login(c *gin.Context) {
 	// database := config.Database()
 	// fmt.Println(database.GetConnection())
 	// _ = c.Request.WithContext()
-	account := repository.Account(c)
+	account := repository.Account()
 
 	var LoginForm accountForm.LoginForm
 	// result, err := account.Login()
@@ -35,7 +35,7 @@ func Login(c *gin.Context) {
 
 	// c.JSON(200, model.WebResponse{Success: true, Data: LoginForm})
 
-	result := account.Login(LoginForm.UnameMail, LoginForm.Password)
+	result := account.Login(c, &LoginForm)
 	if result.Success {
 		c.JSON(200, model.WebResponse{Success: true, Data: result.Data})
 		return
