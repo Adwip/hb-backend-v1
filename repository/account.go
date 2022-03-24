@@ -62,31 +62,26 @@ func AllAccount() ([]AccountScan, error) {
 }*/
 
 type AccountObj struct {
-	// baseRepo *DaoRepo
-	conn   *sql.DB
-	ctx    *context.Context
-	cancel *context.CancelFunc
+	conn *sql.DB
 }
 
-func Account(c *gin.Context) *AccountObj {
+func Account() *AccountObj {
 	database := config.Database()
 	connSring := database.GetConnection()
-	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	account := &AccountObj{
-		conn:   connSring,
-		ctx:    &ctx,
-		cancel: &cancel,
+		conn: connSring,
 	}
 	return account
 }
 
-func (account *AccountObj) Login(unameMail string, password string) *model.RepoResponse {
+func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *model.RepoResponse {
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	var result accountForm.LoginResult
 	var jwtLib = library.JWT{}
 	timeNow := dateTime.DateTimeNow()
-
+	defer cancel()
 	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
-	query := account.conn.QueryRowContext(*account.ctx, sqlStatement, unameMail, unameMail)
+	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
 	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
 	if err == sql.ErrNoRows {
 		return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
@@ -94,7 +89,7 @@ func (account *AccountObj) Login(unameMail string, password string) *model.RepoR
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
 	// fmt.Println(err)
-	if Approved := authentication.PasswordVerification(password, result.Password); !Approved {
+	if Approved := authentication.PasswordVerification(form.Password, result.Password); !Approved {
 		return &model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
 	}
 
