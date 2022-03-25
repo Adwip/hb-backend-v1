@@ -2,11 +2,14 @@ package routes
 
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/controller"
-import "hb-backend-v1/middleware/authentication"
+import _ "hb-backend-v1/middleware/authentication"
+import "hb-backend-v1/middleware"
 
 func Routes() *gin.Engine {
 	router := gin.New()
-	router.Use(authentication.LoginChecking)
+	middleware := middleware.Login()
+	// router.Use(authentication.LoginChecking)
+	router.Use(middleware.LoginChecking)
 	// router.GET("/all-account", controller.AllAccount)
 	// router.POST("/login",controller.Login)
 	// router.GET("/", controller.Test)
