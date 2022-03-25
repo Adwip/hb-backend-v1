@@ -76,9 +76,9 @@ func Account() *AccountObj {
 
 func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *model.RepoResponse {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
-	var result accountForm.LoginResult
-	var jwtLib = library.JWT{}
+	jwtLib := library.JsonWT()
 	timeNow := dateTime.DateTimeNow()
+	var result accountForm.LoginResult
 	defer cancel()
 	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)

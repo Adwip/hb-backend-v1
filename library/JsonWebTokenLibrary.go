@@ -1,9 +1,9 @@
 package library
 
 import accountForm "hb-backend-v1/model/account"
-import "encoding/base64"
 import "encoding/json"
-import _ "strings"
+import "errors"
+import "strings"
 import "os"
 
 type JWT struct {
@@ -13,10 +13,16 @@ var key string = os.Getenv("JWT_KEY")
 var JWTPayload = accountForm.JWTPayload{}
 var JWTHeader = accountForm.JWTHeader{}
 
+func JsonWT() *JWT {
+	jwt := &JWT{}
+	return jwt
+}
+
 func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte) (string, error) {
 	var headerEncoded, payloadEncoded, signature, mergedStringEncoded string
-	var RawStdEncoding = base64.StdEncoding.WithPadding(-1)
-	var cryptoEncode = Crypto{}
+	// RawStdEncoding := base64.StdEncoding.WithPadding(-1)
+	cryptoEncode := Hash()
+	base64 := Base64Lib()
 
 	header := accountForm.JWTHeader{Alg: alg, Typ: typ}
 
@@ -26,8 +32,11 @@ func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte) (string, e
 		return "", errHeader
 	}
 
-	headerEncoded = RawStdEncoding.EncodeToString(headerJson)
-	payloadEncoded = RawStdEncoding.EncodeToString(payload)
+	// headerEncoded = RawStdEncoding.EncodeToString(headerJson)
+	// payloadEncoded = RawStdEncoding.EncodeToString(payload)
+	headerEncoded = base64.Encode(headerJson)
+	payloadEncoded = base64.Encode(payload)
+
 	mergedStringEncoded = headerEncoded + "." + payloadEncoded
 
 	if alg == "SHA256" {
@@ -43,8 +52,8 @@ func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte) (string, e
 
 func (jwt *JWT) VerifiyToken(header string, payload string, signature string, headerObj accountForm.JWTHeader) bool {
 	// mergedHeaderPayload := ""
+	cryptoEncode := Hash()
 	var encodedHeaderPayload string
-	var cryptoEncode = Crypto{}
 	mergedHeaderPayload := header + "." + payload
 	if headerObj.Alg == "SHA256" {
 		encodedHeaderPayload = cryptoEncode.SHA256(mergedHeaderPayload, key)
@@ -54,9 +63,35 @@ func (jwt *JWT) VerifiyToken(header string, payload string, signature string, he
 	return encodedHeaderPayload == signature
 }
 
-func (jwt *JWT) DecodeToken(token string) (bool, accountForm.JWTHeader, accountForm.JWTPayload, error) {
+func (jwt *JWT) DecodeToken(token string) (accountForm.JWTHeader, accountForm.JWTPayload, error) {
 	var header accountForm.JWTHeader
 	var payload accountForm.JWTPayload
+	base64 := Base64Lib()
+	split := strings.Split(token, ".")
+	if length := len(split); length != 3 {
+		return header, payload, errors.New("token not valid")
+	}
 
-	return true, header, payload, nil
+	headerBin, errHeader := base64.Decode(split[0])
+	if errHeader != nil {
+		return header, payload, errHeader
+	}
+	errHeader = json.Unmarshal(headerBin, &header)
+	if errHeader != nil {
+		return header, payload, errHeader
+	}
+
+	payloadBin, errPayload := base64.Decode(split[1])
+	if errPayload != nil {
+		return header, payload, errPayload
+	}
+	errPayload = json.Unmarshal(payloadBin, &payload)
+	if errPayload != nil {
+		return header, payload, errPayload
+	}
+
+	// identity.SetHeader(&header)
+	// identity.SetPayload(&payload)
+
+	return header, payload, nil
 }
