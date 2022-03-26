@@ -38,21 +38,22 @@ func Login(c *gin.Context) {
 
 }
 
-/*
 func Regristration(c *gin.Context) {
+	account := repository.Account()
 	var RegistrationForm accountForm.RegistrationForm
 
 	if err := c.ShouldBindJSON(&RegistrationForm); err != nil {
 		c.JSON(400, gin.H{"success": false, "message": err.Error()})
 		return
 	}
-	success, err := account.RegistrationUser(RegistrationForm)
-	if success {
-		c.JSON(200, gin.H{"success": true, "data": RegistrationForm})
+	result := account.RegistrationUser(c, RegistrationForm)
+
+	if result.Success {
+		c.JSON(200, model.WebResponse{Success: true})
 		return
 	}
-	c.JSON(400, gin.H{"success": false, "message": err.Error()})
-}*/
+	c.JSON(200, model.WebResponse{Success: false})
+}
 
 /*
 func UpdatePassword(c *gin.Context){
