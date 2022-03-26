@@ -4,21 +4,22 @@ import accountForm "hb-backend-v1/model/account"
 import "encoding/json"
 import "errors"
 import "strings"
-import "os"
+import _ "os"
+import _ "fmt"
 
 type JWT struct {
 }
 
-var key string = os.Getenv("JWT_KEY")
-var JWTPayload = accountForm.JWTPayload{}
-var JWTHeader = accountForm.JWTHeader{}
+// var key string = os.Getenv("JWT_SECRET_KEY")
+var JWTPayload accountForm.JWTPayload
+var JWTHeader accountForm.JWTHeader
 
 func JsonWT() *JWT {
 	jwt := &JWT{}
 	return jwt
 }
 
-func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte) (string, error) {
+func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte, key string) (string, error) {
 	var headerEncoded, payloadEncoded, signature, mergedStringEncoded string
 	// RawStdEncoding := base64.StdEncoding.WithPadding(-1)
 	cryptoEncode := Hash()
@@ -50,7 +51,7 @@ func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte) (string, e
 	return finalToken, nil
 }
 
-func (jwt *JWT) VerifiyToken(header string, payload string, signature string, headerObj accountForm.JWTHeader) bool {
+func (jwt *JWT) VerifiyToken(header string, payload string, signature string, headerObj accountForm.JWTHeader, key string) bool {
 	// mergedHeaderPayload := ""
 	cryptoEncode := Hash()
 	var encodedHeaderPayload string

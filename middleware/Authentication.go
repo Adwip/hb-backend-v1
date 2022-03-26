@@ -7,6 +7,7 @@ import "hb-backend-v1/library"
 import _ "context"
 import "strings"
 import "fmt"
+import "os"
 
 type LoginMdw struct {
 }
@@ -21,6 +22,7 @@ func (LoginMdw) LoginChecking(c *gin.Context) {
 	fullPath := c.FullPath()
 	JWT := library.JsonWT()
 	token, isset := reqHeader["Authorization"]
+	jwtKey := os.Getenv("JWT_SECRET_KEY")
 
 	if fullPath == "/auth/login" || fullPath == "/auth/registration" {
 		c.Next()
@@ -43,7 +45,7 @@ func (LoginMdw) LoginChecking(c *gin.Context) {
 		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 2"})
 		return
 	}
-	isAuthorized := JWT.VerifiyToken(splittedToken[0], splittedToken[1], splittedToken[2], header)
+	isAuthorized := JWT.VerifiyToken(splittedToken[0], splittedToken[1], splittedToken[2], header, jwtKey)
 
 	if isAuthorized {
 		c.Set("JWTHeader", header)
