@@ -4,6 +4,9 @@ import "github.com/gin-gonic/gin"
 import _ "hb-backend-v1/library/authentication"
 import "hb-backend-v1/model"
 import "hb-backend-v1/library"
+import _ "context"
+import "strings"
+import "fmt"
 
 type LoginMdw struct {
 }
@@ -14,36 +17,41 @@ func Login() *LoginMdw {
 }
 
 func (LoginMdw) LoginChecking(c *gin.Context) {
-	var isAuthorized bool
 	reqHeader := c.Request.Header
 	fullPath := c.FullPath()
 	JWT := library.JsonWT()
-	identity := library.Identity()
-	var token, isset = reqHeader["Authorization"]
+	token, isset := reqHeader["Authorization"]
+
 	if fullPath == "/auth/login" || fullPath == "/auth/registration" {
 		c.Next()
 		return
 	}
 
 	if !isset {
-		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected"})
+		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 0"})
+		return
+	}
+	splittedToken := strings.Split(token[0], ".")
+	if length := len(splittedToken); length != 3 {
+		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 1"})
 		return
 	}
 
 	header, payload, err := JWT.DecodeToken(token[0])
 	if err != nil {
-		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected"})
+		fmt.Println(err)
+		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 2"})
 		return
 	}
-	isAuthorized = JWT.VerifiyToken(token[0], token[1], token[2], header)
+	isAuthorized := JWT.VerifiyToken(splittedToken[0], splittedToken[1], splittedToken[2], header)
 
 	if isAuthorized {
-		identity.SetHeader(&header)
-		identity.SetPayload(&payload)
+		c.Set("JWTHeader", header)
+		c.Set("JWTPayload", payload)
 		c.Next()
 		return
 	}
-	c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected"})
+	c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 3"})
 }
 
 func (LoginMdw) AccessChecking() bool {

@@ -1,26 +1,38 @@
 package library
 
+import _ "context"
 import accountForm "hb-backend-v1/model/account"
-
-var header accountForm.JWTHeader
-var payload accountForm.JWTPayload
+import "github.com/gin-gonic/gin"
 
 type IdentityLib struct {
+	header        accountForm.JWTHeader
+	headerExists  bool
+	payload       accountForm.JWTPayload
+	payloadExists bool
 }
 
-func Identity() *IdentityLib {
-	identity := &IdentityLib{}
+func Identity(ctx *gin.Context) *IdentityLib {
+	header, headerExists := ctx.Get("JWTHeader")
+	payload, payloadExists := ctx.Get("JWTPayload")
+	identity := &IdentityLib{
+		header:        header.(accountForm.JWTHeader),
+		headerExists:  headerExists,
+		payload:       payload.(accountForm.JWTPayload),
+		payloadExists: payloadExists,
+	}
 	return identity
 }
 
-func (IdentityLib) SetHeader(reqHeader *accountForm.JWTHeader) {
-	header = *reqHeader
+func (id *IdentityLib) GetUserID() string {
+	if id.payloadExists {
+		return id.payload.UserID
+	}
+	return ""
 }
 
-func (IdentityLib) SetPayload(reqPayload *accountForm.JWTPayload) {
-	payload = *reqPayload
-}
-
-func (IdentityLib) GetUserID() string {
-	return payload.UserID
+func (id *IdentityLib) GetFirstname() string {
+	if id.payloadExists {
+		return id.payload.FirstName
+	}
+	return ""
 }
