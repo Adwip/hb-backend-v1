@@ -1,9 +1,9 @@
 package routes
 
-import "github.com/gin-gonic/gin"
 import "hb-backend-v1/controller"
-import _ "hb-backend-v1/middleware/authentication"
+import "github.com/gin-gonic/gin"
 import "hb-backend-v1/middleware"
+import _ "hb-backend-v1/middleware/authentication"
 
 func Routes() *gin.Engine {
 	router := gin.New()
@@ -39,18 +39,17 @@ func Routes() *gin.Engine {
 			product.GET("/recommendation",nil)*/
 	}
 
-	/*
-		user := router.Group("/user")
-		{
-			user.POST("/profile")
-			user.GET("/")
-			user.PUT("/update-profile")
-			user.GET("/{username}")
-			user.PUT("/archive")
-			user.GET("/rating")
-			user.GET("/review")
-		}
-	*/
+	user := router.Group("/user")
+	{
+		user.POST("/all-user", controller.AllAccount)
+		// user.GET("/")
+		// user.PUT("/update-profile")
+		// user.GET("/{username}")
+		// user.PUT("/archive")
+		// user.GET("/rating")
+		// user.GET("/review")
+	}
+
 	/*
 		client := router.Group("/client")
 		{

@@ -90,8 +90,5 @@ func (jwt *JWT) DecodeToken(token string) (accountForm.JWTHeader, accountForm.JW
 		return header, payload, errPayload
 	}
 
-	// identity.SetHeader(&header)
-	// identity.SetPayload(&payload)
-
 	return header, payload, nil
 }

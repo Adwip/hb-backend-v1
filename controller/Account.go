@@ -4,36 +4,30 @@ import "hb-backend-v1/model"
 import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
 import accountForm "hb-backend-v1/model/account"
+import "hb-backend-v1/library"
 
-// import import "hb-backend-v1/config"
-// "hb-backend-v1/model/account"
-
-/*
 func AllAccount(c *gin.Context) {
-	result, err := account.AllAccount()
+	identity := library.Identity(c)
+	c.JSON(200, model.WebResponse{Success: true, Data: identity.GetUserID()})
 
-	if err != nil {
-		c.JSON(200, gin.H{"hasil": err.Error()})
-	} else {
-		c.JSON(200, gin.H{"success": true, "result": result})
-	}
-}*/
+	/*
+		result, err := account.AllAccount()
+
+		if err != nil {
+			c.JSON(200, gin.H{"hasil": err.Error()})
+		} else {
+			c.JSON(200, gin.H{"success": true, "result": result})
+		}*/
+}
 
 func Login(c *gin.Context) {
-	// database := config.Database()
-	// fmt.Println(database.GetConnection())
-	// _ = c.Request.WithContext()
 	account := repository.Account()
-
 	var LoginForm accountForm.LoginForm
-	// result, err := account.Login()
+
 	if err := c.ShouldBindJSON(&LoginForm); err != nil {
-		// c.JSON(500, gin.H{"error": err.Error()})
 		c.JSON(500, model.WebResponse{Success: false})
 		return
 	}
-
-	// c.JSON(200, model.WebResponse{Success: true, Data: LoginForm})
 
 	result := account.Login(c, &LoginForm)
 	if result.Success {
