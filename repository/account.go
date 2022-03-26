@@ -3,7 +3,7 @@ package repository
 import "encoding/json"
 import _ "fmt"
 import "hb-backend-v1/library"
-import "hb-backend-v1/library/authentication"
+import _ "hb-backend-v1/library/authentication"
 import "hb-backend-v1/library/dateTime"
 import "hb-backend-v1/model"
 import accountForm "hb-backend-v1/model/account"
@@ -12,6 +12,8 @@ import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "context"
 import "time"
+import "os"
+import _ "reflect"
 
 // import _ "database/sql"
 // import _ "crypto/md5"
@@ -78,7 +80,11 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	jwtLib := library.JsonWT()
 	timeNow := dateTime.DateTimeNow()
+	hash := library.Hash()
+	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
+	jwtKey := os.Getenv("JWT_SECRET_KEY")
 	var result accountForm.LoginResult
+
 	defer cancel()
 	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
@@ -88,8 +94,10 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	} else if err != nil {
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
-	// fmt.Println(err)
-	if Approved := authentication.PasswordVerification(form.Password, result.Password); !Approved {
+	// fmt.Println(os.Getenv("PASSWORD_KEY"))
+	// fmt.Println(passwordKey)
+	// fmt.Println(reflect.TypeOf(passwordKey))
+	if Approved := hash.VerifyPassword(form.Password, result.Password, passwordKey); !Approved {
 		return &model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
 	}
 
@@ -105,7 +113,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	if errJson != nil {
 		return &model.RepoResponse{Success: false, Msg: "Failed to generate token"}
 	}
-	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload)
+	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload, jwtKey)
 	if errToken != nil {
 		return &model.RepoResponse{Success: false, Msg: "Login rejected"}
 	}
