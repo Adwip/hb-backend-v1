@@ -14,6 +14,7 @@ import "context"
 import "time"
 import "os"
 import _ "reflect"
+import "github.com/google/uuid"
 
 // import _ "database/sql"
 // import _ "crypto/md5"
@@ -136,12 +137,16 @@ func UpdatePassword(form UpdatePasswordForm)bool{
 	result, err := Dao.Update(username, email)
 }*/
 
-/*
-func RegistrationUser(form accountForm.RegistrationForm) (bool, error) {
+func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.RegistrationForm) *model.RepoResponse {
 	// _ = form
-	form.Password = authentication.SHA256encode(form.Password, "12345")
 	id := uuid.New()
-	Dao.Query = "INSERT INTO account (id, name, username, email, password) VALUES (?, ?, ?, ?, ?)"
-	insert, err := Dao.QueryModifier(id, form.Name, form.Username, form.Email, form.Password)
-	return insert, err
-}*/
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
+	_ = id
+	_ = ctx
+	defer cancel()
+	// form.Password = authentication.SHA256encode(form.Password, "12345")
+	// id := uuid.New()
+	// Dao.Query = "INSERT INTO account (id, name, username, email, password) VALUES (?, ?, ?, ?, ?)"
+	// insert, err := Dao.QueryModifier(id, form.Name, form.Username, form.Email, form.Password)
+	return &model.RepoResponse{Success: true}
+}
