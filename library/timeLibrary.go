@@ -3,7 +3,6 @@ package library
 import "time"
 
 type TimeLib struct {
-	currentTime    time.Time
 	dateTimeFormat string
 	dateFormat     string
 	timeFormat     string
@@ -12,29 +11,39 @@ type TimeLib struct {
 
 func Time() *TimeLib {
 	time := &TimeLib{
-		currentTime:    time.Now(),
 		dateTimeFormat: "15:04:05 02-01-2006",
 		dateFormat:     "02-01-2006",
 		timeFormat:     "15:04:05",
-		dbTimeFormat:   "02-01-2006 15:04:05",
+		dbTimeFormat:   "2006-02-01 15:04:05",
 	}
 	return time
 }
 
-func (TimeLib) StringToTime() {
+func (tl TimeLib) StringToTime() {
 
 }
 
-func (TimeLib) TimeToString() {
-
-}
-
-func (ct TimeLib) StringTimeNow() string {
-	result := ct.currentTime.Format(ct.timeFormat)
+func (tl TimeLib) TimeToString() string {
+	result := ""
 	return result
 }
 
-func (ct TimeLib) DbTimeNow() string {
-	result := ct.currentTime.Format(ct.dbTimeFormat)
+func (ct TimeLib) CurrentTimeString() string {
+	result := time.Now().Format(ct.timeFormat)
+	return result
+}
+
+func (TimeLib) CurrentTimeUnix() int64 {
+	result := time.Now().Unix()
+	return result
+}
+
+func (TimeLib) CurrentTimeISO() time.Time {
+	result := time.Now().UTC()
+	return result
+}
+
+func (ct TimeLib) CurrentTImeDbFormat() string {
+	result := time.Now().Format(ct.dbTimeFormat)
 	return result
 }
