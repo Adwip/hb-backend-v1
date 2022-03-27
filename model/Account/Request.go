@@ -7,10 +7,14 @@ type LoginForm struct {
 }
 
 type RegistrationForm struct {
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	Username    string `json:"username"`
+	TimeZone    string `json:"timeZone"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	Password    string `json:"password"`
+	AccountType int8   `json:"accountType"`
 }
 
 type UpdatePasswordForm struct {

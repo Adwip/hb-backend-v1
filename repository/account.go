@@ -87,20 +87,20 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	var result accountForm.LoginResult
 
 	defer cancel()
-	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
+	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
-	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
+	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
 	if err == sql.ErrNoRows {
 		return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
 	} else if err != nil {
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
 	currentDateTime := time.CurrentTimeUnix()
-	utc := time.CurrentTimeUTC()
-	dbFormat := time.CurrentDateTimeDbFormat()
-	fmt.Println(currentDateTime)
-	fmt.Println(utc)
-	fmt.Println(dbFormat)
+	// utc := time.CurrentTimeUTC()
+	// dbFormat := time.CurrentDateTimeDbFormat()
+	// fmt.Println(currentDateTime)
+	// fmt.Println(utc)
+	// fmt.Println(dbFormat)
 	// fmt.Println(os.Getenv("PASSWORD_KEY"))
 	// fmt.Println(passwordKey)
 	// fmt.Println(reflect.TypeOf(passwordKey))
@@ -113,6 +113,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
+		TimeZone:       result.TimeZone,
 		CreatedAt:      currentDateTime,
 	}
 
@@ -130,6 +131,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
+		TimeZone:       result.TimeZone,
 		CreatedAt:      currentDateTime,
 		Token:          token,
 	}
@@ -144,15 +146,64 @@ func UpdatePassword(form UpdatePasswordForm)bool{
 }*/
 
 func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.RegistrationForm) *model.RepoResponse {
-	// _ = form
-	id := uuid.New()
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
+	// _ = form
+	var accountTypeTable string
+	var execErr3 error
+	// var errorMsg map[string]string
+	id := uuid.New()
+	accInfID := uuid.New()
+	hash := library.Hash()
+	timeLib := library.Time()
+	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
+	createdAt := timeLib.CurrentDateTimeDbFormat()
 	_ = id
 	_ = ctx
 	defer cancel()
-	// form.Password = authentication.SHA256encode(form.Password, "12345")
-	// id := uuid.New()
-	// Dao.Query = "INSERT INTO account (id, name, username, email, password) VALUES (?, ?, ?, ?, ?)"
-	// insert, err := Dao.QueryModifier(id, form.Name, form.Username, form.Email, form.Password)
+	// sqlStatement := "insert into "
+	accountTable := "insert into account (id, username, email, primaryAccount, password) values(?, ?, ?, ?, ?)"
+	accountInformationTable := "insert into account_information (id_AccInf, id_account, firstName, lastName, timeZone, phone, createdAt) values(?, ?, ?, ?, ?, ?, ?)"
+	if form.AccountType == 1 {
+		accountTypeTable = "insert into user (id_account, registeredAt, status) values(?, ?, ?)"
+	} else {
+		accountTypeTable = "insert into user (id_account, registeredAt, status) values(?, ?, ?)"
+	}
+	hashedPassword := hash.SHA256(form.Password, passwordKey)
+	_ = hashedPassword
+
+	tx, err := account.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	if err != nil {
+		return &model.RepoResponse{Success: false, Msg: err.Error()}
+	}
+
+	_, execErr1 := tx.Exec(accountTable, id, form.Username, form.Email, form.AccountType, hashedPassword)
+	if execErr1 != nil {
+		tx.Rollback()
+		fmt.Println(execErr1)
+		// return &model.RepoResponse{Success: true, Msg: execErr1.Error()}
+	}
+	_, execErr2 := tx.Exec(accountInformationTable, accInfID, id, form.FirstName, form.LastName, form.TimeZone, form.Phone, createdAt)
+	if execErr2 != nil {
+		fmt.Println(execErr2)
+		tx.Rollback()
+		// return &model.RepoResponse{Success: true, Msg: execErr2.Error()}
+	}
+
+	if form.AccountType == 1 {
+		_, execErr3 = tx.Exec(accountTypeTable, id, createdAt, 1)
+	} else {
+		_, execErr3 = tx.Exec(accountTypeTable, id, createdAt, 1)
+	}
+	if execErr3 != nil {
+		fmt.Println(execErr3)
+		tx.Rollback()
+		// return &model.RepoResponse{Success: true, Msg: execErr3.Error()}
+	}
+	errTrans := tx.Commit()
+
+	if errTrans != nil {
+		return &model.RepoResponse{Success: false, Msg: "Failed"}
+	}
+
 	return &model.RepoResponse{Success: true}
 }
