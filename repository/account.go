@@ -4,7 +4,7 @@ import "encoding/json"
 import _ "fmt"
 import "hb-backend-v1/library"
 import _ "hb-backend-v1/library/authentication"
-import "hb-backend-v1/library/dateTime"
+import _ "hb-backend-v1/library/dateTime"
 import "hb-backend-v1/model"
 import accountForm "hb-backend-v1/model/account"
 import "database/sql"
@@ -80,8 +80,8 @@ func Account() *AccountObj {
 func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *model.RepoResponse {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	jwtLib := library.JsonWT()
-	timeNow := dateTime.DateTimeNow()
 	hash := library.Hash()
+	time := library.Time()
 	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
 	jwtKey := os.Getenv("JWT_SECRET_KEY")
 	var result accountForm.LoginResult
@@ -95,6 +95,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	} else if err != nil {
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
+	timeNow := time.CurrentTimeUnix()
 	// fmt.Println(os.Getenv("PASSWORD_KEY"))
 	// fmt.Println(passwordKey)
 	// fmt.Println(reflect.TypeOf(passwordKey))

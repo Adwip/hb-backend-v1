@@ -23,18 +23,21 @@ type FinalResult struct {
 	Token     string
 }
 
+/*
 type AuthResult struct {
 	Name      string `json:"name"`
 	Username  string `json:"username"`
-	CreatedAt string `json:"createdAt"`
+	TimeZone  string `json:"timeZone"`
+	CreatedAt int64  `json:"createdAt"`
 	Token     string `json:"token"`
-}
+}*/
 
 type LoginResult struct {
 	UserID         string
 	FirstName      string
 	PrimaryAccount int
 	AccountStatus  int
+	TimeZone       string
 	Password       string
 }
 
@@ -43,7 +46,8 @@ type JWTPayload struct {
 	FirstName      string `json:"firstName"`
 	PrimaryAccount int    `json:"primaryAccount"`
 	AccountStatus  int    `json:"accountStatus"`
-	CreatedAt      string `json:"createdAt"`
+	TimeZone       string `json:"timeZone"`
+	CreatedAt      int64  `json:"createdAt"`
 }
 
 type AuthResponse struct {
@@ -51,7 +55,8 @@ type AuthResponse struct {
 	FirstName      string `json:"firstName"`
 	PrimaryAccount int    `json:"primaryAccount"`
 	AccountStatus  int    `json:"accountStatus"`
-	CreatedAt      string `json:"createdAt"`
+	TimeZone       string `json:"timeZone"`
+	CreatedAt      int64  `json:"createdAt"`
 	Token          string `json:"token"`
 }
 
