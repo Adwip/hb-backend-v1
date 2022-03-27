@@ -52,7 +52,7 @@ func Regristration(c *gin.Context) {
 		c.JSON(200, model.WebResponse{Success: true})
 		return
 	}
-	c.JSON(200, model.WebResponse{Success: false})
+	c.JSON(200, model.WebResponse{Success: false, Msg: result.Msg})
 }
 
 /*
