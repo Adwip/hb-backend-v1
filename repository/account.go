@@ -1,7 +1,7 @@
 package repository
 
 import "encoding/json"
-import "fmt"
+import _ "fmt"
 import "hb-backend-v1/library"
 import _ "hb-backend-v1/library/authentication"
 import _ "hb-backend-v1/library/dateTime"
@@ -87,20 +87,20 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	var result accountForm.LoginResult
 
 	defer cancel()
-	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
+	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
-	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.Password)
+	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
 	if err == sql.ErrNoRows {
 		return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
 	} else if err != nil {
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
 	currentDateTime := time.CurrentTimeUnix()
-	utc := time.CurrentTimeUTC()
-	dbFormat := time.CurrentDateTimeDbFormat()
-	fmt.Println(currentDateTime)
-	fmt.Println(utc)
-	fmt.Println(dbFormat)
+	// utc := time.CurrentTimeUTC()
+	// dbFormat := time.CurrentDateTimeDbFormat()
+	// fmt.Println(currentDateTime)
+	// fmt.Println(utc)
+	// fmt.Println(dbFormat)
 	// fmt.Println(os.Getenv("PASSWORD_KEY"))
 	// fmt.Println(passwordKey)
 	// fmt.Println(reflect.TypeOf(passwordKey))
@@ -113,6 +113,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
+		TimeZone:       result.TimeZone,
 		CreatedAt:      currentDateTime,
 	}
 
@@ -130,6 +131,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
+		TimeZone:       result.TimeZone,
 		CreatedAt:      currentDateTime,
 		Token:          token,
 	}
