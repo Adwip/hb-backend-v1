@@ -1,7 +1,7 @@
 package repository
 
 import "encoding/json"
-import _ "fmt"
+import "fmt"
 import "hb-backend-v1/library"
 import _ "hb-backend-v1/library/authentication"
 import _ "hb-backend-v1/library/dateTime"
@@ -95,7 +95,12 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	} else if err != nil {
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
-	timeNow := time.CurrentTimeUnix()
+	currentDateTime := time.CurrentTimeUnix()
+	utc := time.CurrentTimeUTC()
+	dbFormat := time.CurrentDateTimeDbFormat()
+	fmt.Println(currentDateTime)
+	fmt.Println(utc)
+	fmt.Println(dbFormat)
 	// fmt.Println(os.Getenv("PASSWORD_KEY"))
 	// fmt.Println(passwordKey)
 	// fmt.Println(reflect.TypeOf(passwordKey))
@@ -108,7 +113,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
-		CreatedAt:      timeNow,
+		CreatedAt:      currentDateTime,
 	}
 
 	payload, errJson := json.Marshal(JWTPayload)
@@ -125,7 +130,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
-		CreatedAt:      timeNow,
+		CreatedAt:      currentDateTime,
 		Token:          token,
 	}
 
