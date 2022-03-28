@@ -157,8 +157,8 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 	timeLib := library.Time()
 	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
 	createdAt := timeLib.CurrentDateTimeDbFormat()
-	_ = id
-	_ = ctx
+	// _ = id
+	// _ = ctx
 	defer cancel()
 	// sqlStatement := "insert into "
 	accountTable := "insert into account (id, username, email, primaryAccount, password) values(?, ?, ?, ?, ?)"
@@ -169,7 +169,7 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 		accountTypeTable = "insert into user (id_account, registeredAt, status) values(?, ?, ?)"
 	}
 	hashedPassword := hash.SHA256(form.Password, passwordKey)
-	_ = hashedPassword
+	// _ = hashedPassword
 
 	tx, err := account.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
@@ -179,12 +179,12 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 	_, execErr1 := tx.Exec(accountTable, id, form.Username, form.Email, form.AccountType, hashedPassword)
 	if execErr1 != nil {
 		tx.Rollback()
-		fmt.Println(execErr1)
+		// fmt.Println(execErr1)
 		// return &model.RepoResponse{Success: true, Msg: execErr1.Error()}
 	}
 	_, execErr2 := tx.Exec(accountInformationTable, accInfID, id, form.FirstName, form.LastName, form.TimeZone, form.Phone, createdAt)
 	if execErr2 != nil {
-		fmt.Println(execErr2)
+		// fmt.Println(execErr2)
 		tx.Rollback()
 		// return &model.RepoResponse{Success: true, Msg: execErr2.Error()}
 	}
@@ -195,7 +195,7 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 		_, execErr3 = tx.Exec(accountTypeTable, id, createdAt, 1)
 	}
 	if execErr3 != nil {
-		fmt.Println(execErr3)
+		// fmt.Println(execErr3)
 		tx.Rollback()
 		// return &model.RepoResponse{Success: true, Msg: execErr3.Error()}
 	}
