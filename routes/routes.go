@@ -18,7 +18,7 @@ func Routes() *gin.Engine {
 	{
 		auth.POST("/login", controller.Login)
 		auth.POST("/registration", controller.Regristration)
-		// auth.PUT("/password",controller.UpdatePassword)
+		auth.PUT("/password", controller.UpdatePassword)
 		// auth.POST("/destroy",nil)
 	}
 
