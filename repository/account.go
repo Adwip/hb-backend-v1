@@ -1,7 +1,7 @@
 package repository
 
 import "encoding/json"
-import "fmt"
+import _ "fmt"
 import "hb-backend-v1/library"
 import _ "hb-backend-v1/library/authentication"
 import _ "hb-backend-v1/library/dateTime"
@@ -15,54 +15,7 @@ import "time"
 import "os"
 import _ "reflect"
 import "github.com/google/uuid"
-
-// import _ "database/sql"
-// import _ "crypto/md5"
-// import _ "github.com/google/uuid"
-// import _ "fmt"
-
-// var Dao = repository.Dao{}
-
-/*
-func AllAccount() ([]AccountScan, error){
-	var result []AccountScan
-	err := model.Query("select id, name, username, email from account",func(rows *sql.Rows)error{
-		for rows.Next(){
-			var each = AccountScan{}
-			var err = rows.Scan(&each.Id, &each.Name, &each.Username, &each.Email)
-			if err != nil{
-				return err
-			}
-			result = append(result, each)
-		}
-		return nil
-	})
-	if err != nil{
-		return nil,err
-	}
-	return result,nil
-}*/
-
-/*
-func AllAccount() ([]AccountScan, error) {
-	var result []AccountScan
-	Dao.Query = "select id, name, username, email from account"
-	err := Dao.Select()
-	if err != nil {
-		return nil, err
-	}
-	for Dao.Rows.Next() {
-		var each = AccountScan{}
-		var err = Dao.Rows.Scan(&each.Id, &each.Name, &each.Username, &each.Email)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, each)
-	}
-	defer Dao.Rows.Close()
-
-	return result, nil
-}*/
+import _ "errors"
 
 type AccountObj struct {
 	conn *sql.DB
@@ -96,14 +49,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
 	currentDateTime := time.CurrentTimeUnix()
-	// utc := time.CurrentTimeUTC()
-	// dbFormat := time.CurrentDateTimeDbFormat()
-	// fmt.Println(currentDateTime)
-	// fmt.Println(utc)
-	// fmt.Println(dbFormat)
-	// fmt.Println(os.Getenv("PASSWORD_KEY"))
-	// fmt.Println(passwordKey)
-	// fmt.Println(reflect.TypeOf(passwordKey))
+
 	if Approved := hash.VerifyPassword(form.Password, result.Password, passwordKey); !Approved {
 		return &model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
 	}
@@ -139,17 +85,10 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	return &model.RepoResponse{Success: true, Data: authResponse}
 }
 
-/*
-func UpdatePassword(form UpdatePasswordForm)bool{
-	query := "update account where "
-	result, err := Dao.Update(username, email)
-}*/
-
 func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.RegistrationForm) *model.RepoResponse {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	// _ = form
 	var accountTypeTable string
-	var execErr3 error
 	// var errorMsg map[string]string
 	id := uuid.New()
 	accInfID := uuid.New()
@@ -166,7 +105,7 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 	if form.AccountType == 1 {
 		accountTypeTable = "insert into user (id_account, registeredAt, status) values(?, ?, ?)"
 	} else {
-		accountTypeTable = "insert into user (id_account, registeredAt, status) values(?, ?, ?)"
+		accountTypeTable = "insert into customer (id_account, registeredAt, status) values(?, ?, ?)"
 	}
 	hashedPassword := hash.SHA256(form.Password, passwordKey)
 	// _ = hashedPassword
@@ -189,11 +128,8 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 		// return &model.RepoResponse{Success: true, Msg: execErr2.Error()}
 	}
 
-	if form.AccountType == 1 {
-		_, execErr3 = tx.Exec(accountTypeTable, id, createdAt, 1)
-	} else {
-		_, execErr3 = tx.Exec(accountTypeTable, id, createdAt, 1)
-	}
+	_, execErr3 := tx.Exec(accountTypeTable, id, createdAt, 1)
+
 	if execErr3 != nil {
 		// fmt.Println(execErr3)
 		tx.Rollback()
@@ -205,5 +141,35 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 		return &model.RepoResponse{Success: false, Msg: "Failed"}
 	}
 
+	return &model.RepoResponse{Success: true}
+}
+
+func (account AccountObj) UpdatePassword(c *gin.Context, form accountForm.UpdatePasswordForm) *model.RepoResponse {
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
+	identity := library.Identity(c)
+	hash := library.Hash()
+	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
+	defer cancel()
+	_ = ctx
+
+	statement := "update account set password = ? where id = ? and password = ?"
+	hashedPass := hash.SHA256(form.NewPassword, passwordKey)
+	confirmHashedPass := hash.SHA256(form.ConfirmPassword, passwordKey)
+	oldPassword := hash.SHA256(form.OldPassword, passwordKey)
+	if hashedPass != confirmHashedPass {
+		return &model.RepoResponse{Success: false, Msg: "Password confirm not matched"}
+	}
+	result, err := account.conn.ExecContext(ctx, statement, hashedPass, identity.GetUserID(), oldPassword)
+	if err != nil {
+		return &model.RepoResponse{Success: false, Msg: err.Error()}
+	}
+	rows, errAff := result.RowsAffected()
+	if errAff != nil {
+		return &model.RepoResponse{Success: false, Msg: errAff.Error()}
+	}
+
+	if rows < 1 {
+		return &model.RepoResponse{Success: false, Msg: "Failed to update password"}
+	}
 	return &model.RepoResponse{Success: true}
 }

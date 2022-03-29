@@ -3,8 +3,8 @@ package controller
 import "hb-backend-v1/model"
 import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
-import accountForm "hb-backend-v1/model/account"
 import "hb-backend-v1/library"
+import accountForm "hb-backend-v1/model/account"
 
 func AllAccount(c *gin.Context) {
 	identity := library.Identity(c)
@@ -55,21 +55,20 @@ func Regristration(c *gin.Context) {
 	c.JSON(200, model.WebResponse{Success: false, Msg: result.Msg})
 }
 
-/*
-func UpdatePassword(c *gin.Context){
-	var UpdatePasswordForm account.UpdatePasswordForm
-
-	if err:= c.ShouldBindJSON(&UpdatePasswordForm); err != nil{
-		c.JSON(400, gin.H{"success":false})
+func UpdatePassword(c *gin.Context) {
+	var UpdatePasswordForm accountForm.UpdatePasswordForm
+	account := repository.Account()
+	if err := c.ShouldBindJSON(&UpdatePasswordForm); err != nil {
+		c.JSON(400, gin.H{"success": false})
 		return
 	}
-	success := account.UpdatePassword(UpdatePasswordForm)
-	if success{
-		c.JSON(200, gin.H{"success":true, "msg":"Successfully update password"})
+	result := account.UpdatePassword(c, UpdatePasswordForm)
+	if result.Success {
+		c.JSON(200, model.WebResponse{Success: true})
 		return
 	}
-	c.JSON(200, gin.H{"success":true, "data":UpdatePasswordForm})
-}*/
+	c.JSON(200, model.WebResponse{Success: true, Msg: result.Msg})
+}
 
 /*
 func Test(c *gin.Context) {
