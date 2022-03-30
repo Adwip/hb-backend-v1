@@ -12,7 +12,7 @@ func main() {
 	}
 	router := routes.Routes()
 	database := config.Database()
-	database.InitDB()
+	database.InitConnection()
 	// config.InitDB()
 	router.Run(":3001")
 }

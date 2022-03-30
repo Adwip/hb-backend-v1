@@ -10,12 +10,12 @@ var postgreConnection *sql.DB
 type PostgreeDB struct {
 }
 
-func PostgreSQL() *PostgreeDB {
+func PostgreSQL() ConnectionIntf {
 	database := &PostgreeDB{}
 	return database
 }
 
-func (PostgreeDB) InitDB() {
+func (PostgreeDB) InitConnection() {
 	// var err error
 	connResult, err := sql.Open("mysql", os.Getenv("POSTGRE_URL"))
 	// connResult, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/new_hubing_com")

@@ -10,12 +10,12 @@ var connection *sql.DB
 type DatabaseCfg struct {
 }
 
-func Database() *DatabaseCfg {
+func Database() ConnectionIntf {
 	database := &DatabaseCfg{}
 	return database
 }
 
-func (DatabaseCfg) InitDB() {
+func (DatabaseCfg) InitConnection() {
 	// var err error
 	connResult, err := sql.Open("mysql", os.Getenv("MY_SQL_URL"))
 	// connResult, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/new_hubing_com")
