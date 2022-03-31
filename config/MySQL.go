@@ -7,15 +7,15 @@ import "os"
 
 var connection *sql.DB
 
-type DatabaseCfg struct {
+type MySQL struct {
 }
 
 func Database() ConnectionIntf {
-	database := &DatabaseCfg{}
+	database := &MySQL{}
 	return database
 }
 
-func (DatabaseCfg) InitConnection() {
+func (MySQL) InitConnection() {
 	// var err error
 	connResult, err := sql.Open("mysql", os.Getenv("MY_SQL_URL"))
 	// connResult, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/new_hubing_com")
@@ -32,6 +32,6 @@ func (DatabaseCfg) InitConnection() {
 	connection = connResult
 }
 
-func (DatabaseCfg) GetConnection() *sql.DB {
+func (MySQL) GetConnection() *sql.DB {
 	return connection
 }
