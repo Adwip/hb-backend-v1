@@ -9,6 +9,7 @@ func Routes() *gin.Engine {
 	router := gin.New()
 	middleware := middleware.Login()
 	// router.Use(authentication.LoginChecking)
+	router.Use(middleware.CORSHandler)
 	router.Use(middleware.LoginChecking)
 	// router.GET("/all-account", controller.AllAccount)
 	// router.POST("/login",controller.Login)
