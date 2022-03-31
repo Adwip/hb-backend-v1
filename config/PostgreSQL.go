@@ -7,15 +7,15 @@ import "os"
 
 var postgreConnection *sql.DB
 
-type PostgreeDB struct {
+type PostgreSQL struct {
 }
 
-func PostgreSQL() ConnectionIntf {
-	database := &PostgreeDB{}
+func PostgreDB() ConnectionIntf {
+	database := &PostgreSQL{}
 	return database
 }
 
-func (PostgreeDB) InitConnection() {
+func (PostgreSQL) InitConnection() {
 	// var err error
 	connResult, err := sql.Open("mysql", os.Getenv("POSTGRE_URL"))
 	// connResult, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/new_hubing_com")
@@ -32,6 +32,6 @@ func (PostgreeDB) InitConnection() {
 	postgreConnection = connResult
 }
 
-func (PostgreeDB) GetConnection() *sql.DB {
+func (PostgreSQL) GetConnection() *sql.DB {
 	return postgreConnection
 }

@@ -9,22 +9,26 @@ func Routes() *gin.Engine {
 	router := gin.New()
 	middleware := middleware.Login()
 	// router.Use(authentication.LoginChecking)
+	router.Use(middleware.CORSHandler)
 	router.Use(middleware.LoginChecking)
 	// router.GET("/all-account", controller.AllAccount)
 	// router.POST("/login",controller.Login)
 	// router.GET("/", controller.Test)
 
-	auth := router.Group("/auth")
+	accountCtrl := controller.Account("/auth")
+	auth := router.Group(accountCtrl.Prefix())
 	{
-		auth.POST("/login", controller.Login)
-		auth.POST("/registration", controller.Regristration)
-		auth.PUT("/password", controller.UpdatePassword)
+		auth.POST("/login", accountCtrl.Login)
+		auth.POST("/registration", accountCtrl.Regristration)
+		auth.PUT("/password", accountCtrl.UpdatePassword)
 		// auth.POST("/destroy",nil)
 	}
 
 	product := router.Group("/product")
 	{
-		product.POST("/add-to-list", controller.AddList) /*
+		// product.POST("/add-to-list", controller.AddList)
+		_ = product
+		/*
 			product.POST("/add-design",nil)
 			product.GET("/",nil)
 			product.GET("/{ID}",nil)
@@ -41,7 +45,8 @@ func Routes() *gin.Engine {
 
 	user := router.Group("/user")
 	{
-		user.POST("/all-user", controller.AllAccount)
+		_ = user
+		// user.POST("/all-user", account.AllAccount)
 		// user.GET("/")
 		// user.PUT("/update-profile")
 		// user.GET("/{username}")

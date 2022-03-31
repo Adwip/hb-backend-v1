@@ -6,7 +6,22 @@ import "github.com/gin-gonic/gin"
 import "hb-backend-v1/library"
 import accountForm "hb-backend-v1/model/account"
 
-func AllAccount(c *gin.Context) {
+type account struct {
+	prefix string
+}
+
+func Account(prefix string) *account {
+	accountObject := &account{
+		prefix: prefix,
+	}
+	return accountObject
+}
+
+func (acc account) Prefix() string {
+	return acc.prefix
+}
+
+func (account) AllAccount(c *gin.Context) {
 	identity := library.Identity(c)
 	c.JSON(200, model.WebResponse{Success: true, Data: identity.GetUserID()})
 
@@ -20,7 +35,7 @@ func AllAccount(c *gin.Context) {
 		}*/
 }
 
-func Login(c *gin.Context) {
+func (account) Login(c *gin.Context) {
 	account := repository.Account()
 	var LoginForm accountForm.LoginForm
 
@@ -38,7 +53,7 @@ func Login(c *gin.Context) {
 
 }
 
-func Regristration(c *gin.Context) {
+func (account) Regristration(c *gin.Context) {
 	account := repository.Account()
 	var RegistrationForm accountForm.RegistrationForm
 
@@ -55,7 +70,7 @@ func Regristration(c *gin.Context) {
 	c.JSON(200, model.WebResponse{Success: false, Msg: result.Msg})
 }
 
-func UpdatePassword(c *gin.Context) {
+func (account) UpdatePassword(c *gin.Context) {
 	var UpdatePasswordForm accountForm.UpdatePasswordForm
 	account := repository.Account()
 	if err := c.ShouldBindJSON(&UpdatePasswordForm); err != nil {
