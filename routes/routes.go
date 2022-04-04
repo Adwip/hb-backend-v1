@@ -9,7 +9,7 @@ func Routes() *gin.Engine {
 	router := gin.New()
 	middleware := middleware.Login()
 	// router.Use(authentication.LoginChecking)
-	router.Use(middleware.CORSHandler)
+	router.Use(middleware.CORS)
 	router.Use(middleware.LoginChecking)
 	// router.GET("/all-account", controller.AllAccount)
 	// router.POST("/login",controller.Login)
@@ -97,6 +97,9 @@ func Routes() *gin.Engine {
 		// account.GET("/", controller.AllAccount)
 	}
 
+	router.OPTIONS("", func(c *gin.Context) {
+		c.JSON(200, gin.H{"success": 200})
+	})
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"success": false, "error": "URL Not Found"})
 	})

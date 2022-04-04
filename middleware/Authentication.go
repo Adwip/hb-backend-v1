@@ -60,7 +60,7 @@ func (LoginMdw) AccessChecking() bool {
 	return true
 }
 
-func (LoginMdw) CORSHandler(c *gin.Context) {
+func (LoginMdw) CORS(c *gin.Context) {
 	c.Header("Content-Type", "application/json; charset=utf-8")
 	c.Header("Access-Control-Allow-Origin", os.Getenv("ALLOW_ORIGIN"))
 	c.Header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
