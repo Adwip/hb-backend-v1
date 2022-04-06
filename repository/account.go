@@ -3,8 +3,6 @@ package repository
 import "encoding/json"
 import _ "fmt"
 import "hb-backend-v1/library"
-import _ "hb-backend-v1/library/authentication"
-import _ "hb-backend-v1/library/dateTime"
 import "hb-backend-v1/model"
 import accountForm "hb-backend-v1/model/account"
 import "database/sql"
@@ -13,9 +11,7 @@ import "github.com/gin-gonic/gin"
 import "context"
 import "time"
 import "os"
-import _ "reflect"
 import "github.com/google/uuid"
-import _ "errors"
 
 type AccountObj struct {
 	conn *sql.DB
