@@ -3,7 +3,6 @@ package controller
 import "hb-backend-v1/model"
 import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
-import "hb-backend-v1/library"
 import accountForm "hb-backend-v1/model/account"
 
 type account struct {
@@ -19,20 +18,6 @@ func Account(prefix string) *account {
 
 func (acc account) Prefix() string {
 	return acc.prefix
-}
-
-func (account) AllAccount(c *gin.Context) {
-	identity := library.Identity(c)
-	c.JSON(200, model.WebResponse{Success: true, Data: identity.GetUserID()})
-
-	/*
-		result, err := account.AllAccount()
-
-		if err != nil {
-			c.JSON(200, gin.H{"hasil": err.Error()})
-		} else {
-			c.JSON(200, gin.H{"success": true, "result": result})
-		}*/
 }
 
 func (account) Login(c *gin.Context) {
