@@ -36,7 +36,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	var result accountForm.LoginResult
 
 	defer cancel()
-	sqlStatement := "select id AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password from account inner join account_information on account.id = account_information.id_account where username = ? OR email = ?"
+	sqlStatement := "select id_account AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password from account inner join account_information on account.id_account = account_information.account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
 	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
 	if err == sql.ErrNoRows {
