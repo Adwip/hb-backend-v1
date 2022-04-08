@@ -6,18 +6,11 @@ import "github.com/gin-gonic/gin"
 import accountForm "hb-backend-v1/model/account"
 
 type account struct {
-	prefix string
 }
 
-func Account(prefix string) *account {
-	accountObject := &account{
-		prefix: prefix,
-	}
+func Account() *account {
+	accountObject := &account{}
 	return accountObject
-}
-
-func (acc account) Prefix() string {
-	return acc.prefix
 }
 
 func (account) Login(c *gin.Context) {
