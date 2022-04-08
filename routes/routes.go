@@ -7,16 +7,15 @@ import _ "hb-backend-v1/middleware/authentication"
 
 func Routes() *gin.Engine {
 	router := gin.New()
-	middleware := middleware.Login()
-	// router.Use(authentication.LoginChecking)
-	router.Use(middleware.CORS)
-	router.Use(middleware.LoginChecking)
-	// router.GET("/all-account", controller.AllAccount)
-	// router.POST("/login",controller.Login)
-	// router.GET("/", controller.Test)
 
-	accountCtrl := controller.Account("/auth")
-	auth := router.Group(accountCtrl.Prefix())
+	loginValidator := middleware.Login()
+	corsValidator := middleware.CORS()
+
+	router.Use(corsValidator.Cors)
+	router.Use(loginValidator.LoginChecking)
+
+	accountCtrl := controller.Account()
+	auth := router.Group("/auth")
 	{
 		auth.POST("/login", accountCtrl.Login)
 		auth.POST("/registration", accountCtrl.Regristration)
@@ -24,10 +23,12 @@ func Routes() *gin.Engine {
 		// auth.POST("/destroy",nil)
 	}
 
+	productCtrl := controller.Product()
 	product := router.Group("/product")
 	{
-		// product.POST("/add-to-list", controller.AddList)
+		product.POST("/add-to-list", productCtrl.AddList)
 		_ = product
+		_ = productCtrl
 		/*
 			product.POST("/add-design",nil)
 			product.GET("/",nil)
