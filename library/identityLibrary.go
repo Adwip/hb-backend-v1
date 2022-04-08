@@ -36,3 +36,10 @@ func (id *IdentityLib) GetFirstname() string {
 	}
 	return ""
 }
+
+func (id *IdentityLib) GetTimezone() string {
+	if id.payloadExists {
+		return id.payload.TimeZone
+	}
+	return ""
+}
