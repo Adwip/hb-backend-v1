@@ -1,8 +1,10 @@
 package library
 
 import "time"
+import "fmt"
 
 type TimeLib struct {
+	userDateFormat string
 	dateTimeFormat string
 	dateFormat     string
 	timeFormat     string
@@ -11,6 +13,7 @@ type TimeLib struct {
 
 func Time() *TimeLib {
 	time := &TimeLib{
+		userDateFormat: "02-01-2006 15:04:05",
 		dateTimeFormat: "15:04:05 02-01-2006",
 		dateFormat:     "02-01-2006",
 		timeFormat:     "15:04:05",
@@ -48,6 +51,15 @@ func (ct TimeLib) CurrentDateTimeDbFormat() string {
 	return result
 }
 
-func (TimeLib) StringTimetoUnix() int64 {
-	return 1
+func (t TimeLib) StringTimetoUnix(stringTime string, timezone string) (int64, error) {
+	loc, errLoc := time.LoadLocation(timezone)
+	if errLoc != nil {
+		return 0, errLoc
+	}
+	result, errParse := time.ParseInLocation(t.userDateFormat, stringTime, loc)
+	if errParse != nil {
+		return 0, errParse
+	}
+	fmt.Println(result)
+	return result.Unix(), nil
 }
