@@ -51,15 +51,15 @@ func (ct TimeLib) CurrentDateTimeDbFormat() string {
 	return result
 }
 
-func (t TimeLib) StringTimetoUnix(stringTime string, timezone string) (int64, error) {
+func (t TimeLib) ConvertToUTC(stringTime string, timezone string) (string, error) {
 	loc, errLoc := time.LoadLocation(timezone)
 	if errLoc != nil {
-		return 0, errLoc
+		return "", errLoc
 	}
 	result, errParse := time.ParseInLocation(t.userDateFormat, stringTime, loc)
 	if errParse != nil {
-		return 0, errParse
+		return "", errParse
 	}
 	fmt.Println(result)
-	return result.Unix(), nil
+	return result.UTC().Format(t.dbTimeFormat), nil
 }
