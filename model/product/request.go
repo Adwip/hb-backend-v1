@@ -9,7 +9,18 @@ type AddProduct struct {
 	SalesType int8           `json:"salesType"`
 }
 
+type ModifyProductImages struct {
+	Product      string                `json:"product"`
+	NewImages    []ProductImage        `json:"newImages"`
+	ModifiedFile []DeletedProductImage `json:"modifiedImages"`
+}
+
 type ProductImage struct {
 	Base64    string `json:"imageFile"`
 	MainImage bool   `json:"mainImage"`
+}
+
+type DeletedProductImage struct {
+	ImageID string `json:"imageID"`
+	Action  int8   `json:"action"`
 }
