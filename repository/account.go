@@ -1,7 +1,7 @@
 package repository
 
 import "encoding/json"
-import _ "fmt"
+import "fmt"
 import "hb-backend-v1/library"
 import "hb-backend-v1/model"
 import accountForm "hb-backend-v1/model/account"
@@ -96,12 +96,12 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 	// _ = ctx
 	defer cancel()
 	// sqlStatement := "insert into "
-	accountTable := "insert into account (id, username, email, primaryAccount, password) values(?, ?, ?, ?, ?)"
-	accountInformationTable := "insert into account_information (id_AccInf, id_account, firstName, lastName, timeZone, phone, createdAt) values(?, ?, ?, ?, ?, ?, ?)"
+	accountTable := "insert into account (id_account, username, email, primaryAccount, password) values(?, ?, ?, ?, ?)"
+	accountInformationTable := "insert into account_information (id_account_inf, account, firstName, lastName, timeZone, phone, createdAt) values(?, ?, ?, ?, ?, ?, ?)"
 	if form.AccountType == 1 {
-		accountTypeTable = "insert into user (id_account, registeredAt, status) values(?, ?, ?)"
+		accountTypeTable = "insert into user (account, registeredAt, status) values(?, ?, ?)"
 	} else {
-		accountTypeTable = "insert into customer (id_account, registeredAt, status) values(?, ?, ?)"
+		accountTypeTable = "insert into customer (account, registeredAt, status) values(?, ?, ?)"
 	}
 	hashedPassword := hash.SHA256(form.Password, passwordKey)
 	// _ = hashedPassword
@@ -114,12 +114,12 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 	_, execErr1 := tx.Exec(accountTable, id, form.Username, form.Email, form.AccountType, hashedPassword)
 	if execErr1 != nil {
 		tx.Rollback()
-		// fmt.Println(execErr1)
+		fmt.Println(execErr1)
 		// return &model.RepoResponse{Success: true, Msg: execErr1.Error()}
 	}
 	_, execErr2 := tx.Exec(accountInformationTable, accInfID, id, form.FirstName, form.LastName, form.TimeZone, form.Phone, createdAt)
 	if execErr2 != nil {
-		// fmt.Println(execErr2)
+		fmt.Println(execErr2)
 		tx.Rollback()
 		// return &model.RepoResponse{Success: true, Msg: execErr2.Error()}
 	}
@@ -127,14 +127,14 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 	_, execErr3 := tx.Exec(accountTypeTable, id, createdAt, 1)
 
 	if execErr3 != nil {
-		// fmt.Println(execErr3)
+		fmt.Println(execErr3)
 		tx.Rollback()
 		// return &model.RepoResponse{Success: true, Msg: execErr3.Error()}
 	}
 	errTrans := tx.Commit()
 
 	if errTrans != nil {
-		return &model.RepoResponse{Success: false, Msg: "Failed"}
+		return &model.RepoResponse{Success: false, Msg: errTrans.Error()}
 	}
 
 	return &model.RepoResponse{Success: true}
