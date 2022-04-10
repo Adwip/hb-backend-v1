@@ -26,9 +26,8 @@ func Routes() *gin.Engine {
 	productCtrl := controller.Product()
 	product := router.Group("/product")
 	{
-		product.POST("/add-to-list", productCtrl.AddList)
-		_ = product
-		_ = productCtrl
+		product.POST("/add-to-list", productCtrl.AddProduct)
+		product.GET("/add-to-list", productCtrl.TestTime)
 		/*
 			product.POST("/add-design",nil)
 			product.GET("/",nil)
