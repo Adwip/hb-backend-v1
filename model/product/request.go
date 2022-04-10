@@ -10,9 +10,9 @@ type AddProduct struct {
 }
 
 type ModifyProductImages struct {
-	Product     string                `json:"product"`
-	NewImages   []ProductImage        `json:"newImages"`
-	DeletedFile []DeletedProductImage `json:"deletedImages"`
+	Product      string                `json:"product"`
+	NewImages    []ProductImage        `json:"newImages"`
+	ModifiedFile []DeletedProductImage `json:"modifiedImages"`
 }
 
 type ProductImage struct {
@@ -22,4 +22,5 @@ type ProductImage struct {
 
 type DeletedProductImage struct {
 	ImageID string `json:"imageID"`
+	Action  int8   `json:"action"`
 }
