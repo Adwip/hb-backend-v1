@@ -26,9 +26,9 @@ func Product() *productRepo {
 
 func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.RepoResponse {
 	var negotiate int8
-	ctx, cancel := context.WithTimeout(c, 5*time.Second)
+	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	identity := library.Identity(c)
-	timeLib := library.Time()
+	currentTime := library.Time().CurrentDateTimeDbFormat()
 
 	defer cancel()
 
@@ -36,12 +36,19 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.
 	if req.Negotiate {
 		negotiate = 1
 	}
-	statement := "INSERT INTO product (id_product, user, field, judul, negosiasi, createdAt) values (?, ?, ?, ?, ?, ?)"
+	fmt.Println(id)
+	fmt.Println(identity.GetUserID())
+	statement := "INSERT INTO product (id_product, user, field, judul, negosiasi, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
 
-	result, errInsert := pr.conn.ExecContext(ctx, statement, id, identity.GetUserID(), req.Field, req.Title, negotiate, timeLib.CurrentDateTimeDbFormat())
-	inserted, _ := result.RowsAffected()
+	result, errInsert := pr.conn.ExecContext(ctx, statement, id, "06e09999-415f-40ff-b538-1d2bcdc8db71", "26bc4409-c25a-4ea6-ac46-41a1957d9cac", req.Title, negotiate, currentTime)
 	if errInsert != nil {
 		fmt.Println(errInsert)
+		return &model.RepoResponse{Success: false, Msg: "Failed to add product"}
+	}
+
+	inserted, errRows := result.RowsAffected()
+	if errRows != nil {
+		fmt.Println(errRows)
 		return &model.RepoResponse{Success: false, Msg: "Failed to add product"}
 	} else if inserted == 0 {
 		fmt.Println("Inserted value ", inserted)
