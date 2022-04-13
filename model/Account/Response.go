@@ -35,7 +35,9 @@ type AuthResult struct {
 type LoginResult struct {
 	AccountID      string
 	UserID         string
+	UserExists     bool
 	CustomerID     string
+	CustomerExists bool
 	FirstName      string
 	PrimaryAccount int
 	AccountStatus  int
@@ -45,7 +47,9 @@ type LoginResult struct {
 
 type JWTPayload struct {
 	AccountID      string `json:"accountID"`
+	UserExists     bool   `json:"userAccount"`
 	UserID         string `json:"userID"`
+	CustomerExists bool   `json:"customerAccount"`
 	CustomerID     string `json:"customerID"`
 	FirstName      string `json:"firstName"`
 	PrimaryAccount int    `json:"primaryAccount"`
@@ -56,7 +60,9 @@ type JWTPayload struct {
 
 type AuthResponse struct {
 	AccountID      string `json:"accountID"`
+	UserExists     bool   `json:"userAccount"`
 	UserID         string `json:"userID"`
+	CustomerExists bool   `json:"customerAccount"`
 	CustomerID     string `json:"customerID"`
 	FirstName      string `json:"firstName"`
 	PrimaryAccount int    `json:"primaryAccount"`

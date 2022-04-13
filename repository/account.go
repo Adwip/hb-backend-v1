@@ -27,20 +27,22 @@ func Account() *AccountObj {
 }
 
 func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *model.RepoResponse {
+	var result accountForm.LoginResult
+
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	jwtLib := library.JsonWT()
 	hash := library.Hash()
 	time := library.Time()
 	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
 	jwtKey := os.Getenv("JWT_SECRET_KEY")
-	var result accountForm.LoginResult
 
 	defer cancel()
-	sqlStatement := "SELECT id_account AS accountID, id_user AS userID, id_customer AS customerID firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password FROM account INNER JOIN account_information ON account.id_account = account_information.account LEFT JOIN user ON account.id_account=user.account LEFT JOIN customer ON account.id_account=user.account where username = ? OR email = ?"
+	sqlStatement := "SELECT id_account AS accountID, IF(id_user!='', true, false) AS userExists, IF(id_customer!='', true, false) AS customerExists, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password FROM account INNER JOIN account_information ON account.id_account = account_information.account LEFT JOIN user ON account.id_account=user.account LEFT JOIN customer ON account.id_account=customer.account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
-	err := query.Scan(&result.AccountID, &result.UserID, &result.CustomerID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
+
+	err := query.Scan(&result.AccountID, &result.UserExists, &result.CustomerExists, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
 	if err == sql.ErrNoRows {
-		return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
+		return &model.RepoResponse{Success: false, Msg: "Account not exists | no result"}
 	} else if err != nil {
 		return &model.RepoResponse{Success: false, Msg: err.Error()}
 	}
@@ -50,9 +52,31 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 		return &model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
 	}
 
+	if result.UserExists {
+		userQuery := "SELECT id_user, account from user where account = ?"
+		userResult := account.conn.QueryRowContext(ctx, userQuery, result.AccountID)
+
+		if err := userResult.Scan(&result.UserID, &result.AccountID); err != nil {
+			fmt.Println(err)
+			// return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
+		}
+	}
+
+	if result.CustomerExists {
+		customerQuery := "SELECT id_customer, account from customer where account = ?"
+		customerResult := account.conn.QueryRowContext(ctx, customerQuery, result.AccountID)
+
+		if err := customerResult.Scan(&result.CustomerID, &result.AccountID); err != nil {
+			fmt.Println(err)
+			// return &model.RepoResponse{Success: false, Msg: "Customer not exists | no result"}
+		}
+	}
+
 	JWTPayload := accountForm.JWTPayload{
 		AccountID:      result.AccountID,
+		UserExists:     result.UserExists,
 		UserID:         result.UserID,
+		CustomerExists: result.CustomerExists,
 		CustomerID:     result.CustomerID,
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
@@ -74,7 +98,9 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 
 	authResponse := accountForm.AuthResponse{
 		AccountID:      result.AccountID,
+		UserExists:     result.UserExists,
 		UserID:         result.UserID,
+		CustomerExists: result.CustomerExists,
 		CustomerID:     result.CustomerID,
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
