@@ -36,9 +36,9 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	var result accountForm.LoginResult
 
 	defer cancel()
-	sqlStatement := "select id_account AS userID, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password from account inner join account_information on account.id_account = account_information.account where username = ? OR email = ?"
+	sqlStatement := "SELECT id_account AS accountID, id_user AS userID, id_customer AS customerID firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password FROM account INNER JOIN account_information ON account.id_account = account_information.account LEFT JOIN user ON account.id_account=user.account LEFT JOIN customer ON account.id_account=user.account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
-	err := query.Scan(&result.UserID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
+	err := query.Scan(&result.AccountID, &result.UserID, &result.CustomerID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
 	if err == sql.ErrNoRows {
 		return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
 	} else if err != nil {
@@ -51,7 +51,9 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 	}
 
 	JWTPayload := accountForm.JWTPayload{
+		AccountID:      result.AccountID,
 		UserID:         result.UserID,
+		CustomerID:     result.CustomerID,
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
@@ -61,15 +63,19 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *m
 
 	payload, errJson := json.Marshal(JWTPayload)
 	if errJson != nil {
+		fmt.Println(errJson)
 		return &model.RepoResponse{Success: false, Msg: "Failed to generate token"}
 	}
 	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload, jwtKey)
 	if errToken != nil {
+		fmt.Println(errToken)
 		return &model.RepoResponse{Success: false, Msg: "Login rejected"}
 	}
 
 	authResponse := accountForm.AuthResponse{
+		AccountID:      result.AccountID,
 		UserID:         result.UserID,
+		CustomerID:     result.CustomerID,
 		FirstName:      result.FirstName,
 		PrimaryAccount: result.PrimaryAccount,
 		AccountStatus:  result.AccountStatus,
