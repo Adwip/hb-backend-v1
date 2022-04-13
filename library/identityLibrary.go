@@ -30,6 +30,20 @@ func (id *IdentityLib) GetUserID() string {
 	return ""
 }
 
+func (id *IdentityLib) GetAccountID() string {
+	if id.payloadExists {
+		return id.payload.AccountID
+	}
+	return ""
+}
+
+func (id *IdentityLib) GetCustomerID() string {
+	if id.payloadExists {
+		return id.payload.CustomerID
+	}
+	return ""
+}
+
 func (id *IdentityLib) GetFirstname() string {
 	if id.payloadExists {
 		return id.payload.FirstName
