@@ -40,7 +40,7 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.
 	fmt.Println(identity.GetUserID())
 	statement := "INSERT INTO product (id_product, user, field, judul, negosiasi, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
 
-	result, errInsert := pr.conn.ExecContext(ctx, statement, id, "06e09999-415f-40ff-b538-1d2bcdc8db71", "26bc4409-c25a-4ea6-ac46-41a1957d9cac", req.Title, negotiate, currentTime)
+	result, errInsert := pr.conn.ExecContext(ctx, statement, id, identity.GetUserID(), req.Field, req.Title, negotiate, currentTime)
 	if errInsert != nil {
 		fmt.Println(errInsert)
 		return &model.RepoResponse{Success: false, Msg: "Failed to add product"}
