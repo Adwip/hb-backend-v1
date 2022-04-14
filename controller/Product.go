@@ -16,18 +16,26 @@ func Product() *productObj {
 
 func (productObj) AddProduct(c *gin.Context) {
 	var reqBody product.AddProduct
-	producModel := repository.Product()
+	var failedInsert map[string]interface{} = map[string]interface{}{}
+	// failedInsert = map[string]interface{{}
+	producRepo := repository.Product()
+	productImageRepo := repository.ProductImage()
 	err := c.BindJSON(&reqBody)
 	if err != nil {
 		c.JSON(200, model.WebResponse{Success: false})
 		return
 	}
 
-	insert := producModel.AddProduct(c, reqBody)
+	insert := producRepo.AddProduct(c, reqBody)
 
 	if !insert.Success {
 		c.JSON(200, model.WebResponse{Success: false, Msg: insert.Msg})
 		return
+	}
+
+	insertImage := productImageRepo.AddProductImages(c, insert.Data.(string), reqBody.Images)
+	if insertImage.Data != nil {
+		failedInsert["productImage"] = insertImage.Data
 	}
 	c.JSON(200, model.WebResponse{Success: true, Data: reqBody})
 }
