@@ -56,34 +56,3 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.
 	}
 	return &model.RepoResponse{Success: true, Data: id.String()}
 }
-
-func (pr productRepo) AddProductImage(c *gin.Context, imageRequest []product.ProductImage) *model.RepoResponse {
-	var rejectedFile []string
-	ctx, cancel := context.WithTimeout(c, 5*time.Second)
-	id := uuid.New()
-	defer cancel()
-
-	for i := 0; i < len(imageRequest); i++ {
-		statement := ""
-		prepStatement, errPrepare := pr.conn.PrepareContext(ctx, statement)
-		if errPrepare != nil {
-			fmt.Println("Failed to prepare query")
-		}
-		result, err := prepStatement.ExecContext(ctx, id)
-
-		if err != nil {
-			fmt.Println("Failed to insert data")
-		}
-		affected, _ := result.RowsAffected()
-
-		if affected == 0 {
-			rejectedFile = append(rejectedFile, imageRequest[i].ImageName)
-		}
-	}
-
-	if len(rejectedFile) != 0 {
-		return &model.RepoResponse{Success: false, Data: rejectedFile}
-	}
-
-	return &model.RepoResponse{Success: true}
-}
