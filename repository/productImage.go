@@ -4,7 +4,7 @@ import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "database/sql"
 import "hb-backend-v1/model/product"
-import _ "github.com/google/uuid"
+import "github.com/google/uuid"
 import "hb-backend-v1/model"
 import "context"
 import "time"
@@ -35,8 +35,8 @@ func (pi productImageRepo) AddProductImages(c *gin.Context, productID string, re
 	defer cancel()
 
 	for i := 0; i < len(req); i++ {
-		statement = ""
-		resultQuery, errQuery = pi.conn.ExecContext(ctx, statement)
+		statement = "INSERT INTO product_image (id_product_img, product, file_name, base_64) VALUES (?, ?, ?, ?)"
+		resultQuery, errQuery = pi.conn.ExecContext(ctx, statement, uuid.New(), productID, req[i].ImageName, req[i].Base64)
 
 		if errQuery != nil {
 			fmt.Println(errQuery)
@@ -54,8 +54,10 @@ func (pi productImageRepo) AddProductImages(c *gin.Context, productID string, re
 
 	if len(rejectedFile) != 0 && len(rejectedFile) == len(req) {
 		return &model.RepoResponse{Success: false, Data: rejectedFile}
+	} else if len(rejectedFile) != 0 {
+		return &model.RepoResponse{Success: true, Data: rejectedFile}
 	}
 
-	return &model.RepoResponse{Success: true, Data: rejectedFile}
+	return &model.RepoResponse{Success: true}
 
 }
