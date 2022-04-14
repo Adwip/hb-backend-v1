@@ -54,7 +54,7 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.
 		fmt.Println("Inserted value ", inserted)
 		return &model.RepoResponse{Success: false, Msg: "Failed to add product"}
 	}
-	return &model.RepoResponse{Success: true, Data: id}
+	return &model.RepoResponse{Success: true, Data: id.String()}
 }
 
 func (pr productRepo) AddProductImage(c *gin.Context, imageRequest []product.ProductImage) *model.RepoResponse {

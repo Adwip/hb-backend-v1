@@ -5,6 +5,8 @@ import "hb-backend-v1/library"
 import "hb-backend-v1/model"
 import "hb-backend-v1/model/product"
 import "hb-backend-v1/repository"
+import "fmt"
+import "reflect"
 
 type productObj struct {
 }
@@ -32,12 +34,12 @@ func (productObj) AddProduct(c *gin.Context) {
 		c.JSON(200, model.WebResponse{Success: false, Msg: insert.Msg})
 		return
 	}
-
+	fmt.Println(reflect.TypeOf(insert.Data))
 	insertImage := productImageRepo.AddProductImages(c, insert.Data.(string), reqBody.Images)
 	if insertImage.Data != nil {
 		failedInsert["productImage"] = insertImage.Data
 	}
-	c.JSON(200, model.WebResponse{Success: true, Data: reqBody})
+	c.JSON(200, model.WebResponse{Success: true, Data: failedInsert})
 }
 
 func (productObj) AddList(c *gin.Context) {
