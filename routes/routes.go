@@ -7,12 +7,16 @@ import _ "hb-backend-v1/middleware/authentication"
 
 func Routes() *gin.Engine {
 	router := gin.New()
+	// loginRoute := LoginRoutes()
 
-	loginValidator := middleware.Login()
+	// loginValidator := middleware.Login()
 	corsValidator := middleware.CORS()
 
+	// router.Use(loginRoute)
 	router.Use(corsValidator.Cors)
-	router.Use(loginValidator.LoginChecking)
+	authenticatedRoutes(router)
+	nonAuthenticatedRoutesRoutes(router)
+	// router.Use(loginValidator.LoginChecking)
 
 	accountCtrl := controller.Account()
 	auth := router.Group("/auth")
