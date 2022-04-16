@@ -16,6 +16,6 @@ func (cors) Cors(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", os.Getenv("ALLOW_ORIGIN"))
 	c.Header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Range,Content-Disposition, Content-Type")
-	c.Header("Access-Control-Allow-Credentials", "true")
+	// c.Header("Access-Control-Allow-Credentials", "true")
 	c.Next()
 }
