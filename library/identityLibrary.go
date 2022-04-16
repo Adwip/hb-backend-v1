@@ -57,3 +57,7 @@ func (id *IdentityLib) GetTimezone() string {
 	}
 	return ""
 }
+
+func (id *IdentityLib) IsAuthenticated() bool {
+	return id.payloadExists
+}
