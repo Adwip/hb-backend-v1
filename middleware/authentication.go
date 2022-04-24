@@ -1,10 +1,8 @@
 package middleware
 
 import "github.com/gin-gonic/gin"
-import _ "hb-backend-v1/library/authentication"
 import "hb-backend-v1/model"
 import "hb-backend-v1/library"
-import _ "context"
 import "strings"
 import "fmt"
 import "os"
@@ -17,17 +15,11 @@ func Login() *LoginMdw {
 	return login
 }
 
-func (LoginMdw) LoginChecking(c *gin.Context) {
+func (LoginMdw) Logger(c *gin.Context) {
 	reqHeader := c.Request.Header
-	fullPath := c.FullPath()
 	JWT := library.JsonWT()
 	token, isset := reqHeader["Authorization"]
 	jwtKey := os.Getenv("JWT_SECRET_KEY")
-
-	if fullPath == "/auth/login" || fullPath == "/auth/registration" {
-		c.Next()
-		return
-	}
 
 	if !isset {
 		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 0"})
