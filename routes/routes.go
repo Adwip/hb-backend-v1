@@ -2,7 +2,6 @@ package routes
 
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/middleware"
-import _ "hb-backend-v1/middleware/authentication"
 
 func Routes() *gin.Engine {
 	router := gin.New()
