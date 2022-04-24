@@ -15,7 +15,7 @@ func Login() *LoginMdw {
 	return login
 }
 
-func (LoginMdw) LoginChecking(c *gin.Context) {
+func (LoginMdw) Logger(c *gin.Context) {
 	reqHeader := c.Request.Header
 	JWT := library.JsonWT()
 	token, isset := reqHeader["Authorization"]

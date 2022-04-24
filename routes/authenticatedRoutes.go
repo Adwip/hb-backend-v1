@@ -7,7 +7,7 @@ import "hb-backend-v1/middleware"
 func authenticatedRoutes(router *gin.Engine) {
 
 	loginValidator := middleware.Login()
-	authenticatedRoutes := router.Group("/ar", loginValidator.LoginChecking)
+	authenticatedRoutes := router.Group("/ar", loginValidator.Logger)
 	{
 		productCtrl := controller.Product()
 		product := authenticatedRoutes.Group("/user-product")
