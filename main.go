@@ -13,6 +13,5 @@ func main() {
 	router := routes.Routes()
 	database := config.Database()
 	database.InitConnection()
-	// config.InitDB()
 	router.Run(":3001")
 }
