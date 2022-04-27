@@ -2,7 +2,6 @@ package main
 
 import "hb-backend-v1/routes"
 import "hb-backend-v1/config"
-import _ "fmt"
 import "github.com/joho/godotenv"
 
 func main() {
