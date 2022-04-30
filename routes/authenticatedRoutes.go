@@ -9,6 +9,14 @@ func authenticatedRoutes(router *gin.Engine) {
 	loginValidator := middleware.Login()
 	authenticatedRoutes := router.Group("/ar", loginValidator.Logger)
 	{
+		accountCtrl := controller.Account()
+		auth := router.Group("/auth")
+		{
+			auth.PUT("/password", accountCtrl.UpdatePassword)
+			// auth.PUT("/password", accountCtrl.UpdatePassword)
+			// auth.POST("/destroy",nil)
+		}
+
 		productCtrl := controller.Product()
 		product := authenticatedRoutes.Group("/user-product")
 		{
