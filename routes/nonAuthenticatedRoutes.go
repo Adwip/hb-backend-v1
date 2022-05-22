@@ -10,7 +10,6 @@ func nonAuthenticatedRoutesRoutes(router *gin.Engine) {
 	{
 		auth.POST("/login", accountCtrl.Login)
 		auth.POST("/registration", accountCtrl.Regristration)
-		auth.PUT("/password", accountCtrl.UpdatePassword)
 		// auth.POST("/destroy",nil)
 	}
 
