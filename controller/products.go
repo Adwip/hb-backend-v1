@@ -57,3 +57,13 @@ func (productObj) TestTime(c *gin.Context) {
 	}
 	c.JSON(200, model.WebResponse{Success: true, Data: timeConvert})
 }
+
+func (productObj) TestHandler(c *gin.Context) {
+	c.JSON(200, model.WebResponse{Success: true, Msg: "Test function"})
+
+}
+
+func (productObj) TestHandlerParams(c *gin.Context) {
+	params := c.Param("id")
+	c.JSON(200, model.WebResponse{Success: true, Data: params, Msg: "Test params"})
+}

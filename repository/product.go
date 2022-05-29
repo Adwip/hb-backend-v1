@@ -56,3 +56,8 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.
 	}
 	return &model.RepoResponse{Success: true, Data: id.String()}
 }
+
+func (pr productRepo) ProductByID(c *gin.Context, id string) *model.RepoResponse {
+
+	return &model.RepoResponse{Success: true}
+}

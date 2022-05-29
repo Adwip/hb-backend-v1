@@ -12,7 +12,7 @@ func Routes() *gin.Engine {
 	// router.Use(loginRoute)
 	router.Use(corsValidator.Cors)
 	authenticatedRoutes(router)
-	nonAuthenticatedRoutesRoutes(router)
+	nonAuthenticatedRoutes(router)
 	// router.Use(loginValidator.LoginChecking)
 
 	router.OPTIONS("", handler.Options)
