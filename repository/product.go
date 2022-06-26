@@ -58,6 +58,14 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.
 }
 
 func (pr productRepo) ProductByID(c *gin.Context, id string) *model.RepoResponse {
+	var productResult product.ProductByIdResponse
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 
+	defer cancel()
+	_ = productResult
+	_ = ctx
+
+	sqlStatement := "select id_product as id, field, judul as title, negosiasi from product"
+	_ = sqlStatement
 	return &model.RepoResponse{Success: true}
 }

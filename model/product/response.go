@@ -4,6 +4,7 @@ type ProductByIdResponse struct {
 	ID           string
 	Name         string
 	Image        string
+	User         string
 	PurchaseType int8
 	IsNegotiable bool
 	Field        int8
