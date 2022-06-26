@@ -1,6 +1,6 @@
 package repository
 
-import "encoding/json"
+// import "encoding/json"
 import "fmt"
 import "hb-backend-v1/library"
 import "hb-backend-v1/model"
@@ -26,91 +26,28 @@ func Account() *AccountObj {
 	return account
 }
 
-func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) *model.RepoResponse {
-	var result accountForm.LoginResult
+func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) (bool, accountForm.LoginData, string) {
+	var result accountForm.LoginData
 
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
-	jwtLib := library.JsonWT()
 	hash := library.Hash()
-	time := library.Time()
 	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
-	jwtKey := os.Getenv("JWT_SECRET_KEY")
 
 	defer cancel()
-	sqlStatement := "SELECT id_account AS accountID, IF(id_user!='', true, false) AS userExists, IF(id_customer!='', true, false) AS customerExists, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password FROM account INNER JOIN account_information ON account.id_account = account_information.account LEFT JOIN user ON account.id_account=user.account LEFT JOIN customer ON account.id_account=customer.account where username = ? OR email = ?"
+	sqlStatement := "SELECT id_account AS accountID, IF(id_user!='', id_user, '') as userID, IF(id_customer!='', id_customer, '') as customerID, firstName, 1 AS primaryAccount, 1 AS accountStatus, timeZone, password FROM account INNER JOIN account_information ON account.id_account = account_information.account LEFT JOIN user ON account.id_account=user.account LEFT JOIN customer ON account.id_account=customer.account where username = ? OR email = ?"
 	query := account.conn.QueryRowContext(ctx, sqlStatement, form.UnameMail, form.UnameMail)
 
-	err := query.Scan(&result.AccountID, &result.UserExists, &result.CustomerExists, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
+	err := query.Scan(&result.AccountID, &result.UserID, &result.CustomerID, &result.FirstName, &result.PrimaryAccount, &result.AccountStatus, &result.TimeZone, &result.Password)
 	if err == sql.ErrNoRows {
-		return &model.RepoResponse{Success: false, Msg: "Account not exists | no result"}
+		return false, result, "Account not exists | no result"
 	} else if err != nil {
-		return &model.RepoResponse{Success: false, Msg: err.Error()}
+		return false, result, "Account not exists | no result"
 	}
-	currentDateTime := time.CurrentTimeUnix()
 
 	if Approved := hash.VerifyPassword(form.Password, result.Password, passwordKey); !Approved {
-		return &model.RepoResponse{Success: false, Msg: "User not exists | password is wrong"}
+		return false, result, "User not exists | password is wrong"
 	}
-
-	if result.UserExists {
-		userQuery := "SELECT id_user, account from user where account = ?"
-		userResult := account.conn.QueryRowContext(ctx, userQuery, result.AccountID)
-
-		if err := userResult.Scan(&result.UserID, &result.AccountID); err != nil {
-			fmt.Println(err)
-			// return &model.RepoResponse{Success: false, Msg: "User not exists | no result"}
-		}
-	}
-
-	if result.CustomerExists {
-		customerQuery := "SELECT id_customer, account from customer where account = ?"
-		customerResult := account.conn.QueryRowContext(ctx, customerQuery, result.AccountID)
-
-		if err := customerResult.Scan(&result.CustomerID, &result.AccountID); err != nil {
-			fmt.Println(err)
-			// return &model.RepoResponse{Success: false, Msg: "Customer not exists | no result"}
-		}
-	}
-
-	JWTPayload := accountForm.JWTPayload{
-		AccountID:      result.AccountID,
-		UserExists:     result.UserExists,
-		UserID:         result.UserID,
-		CustomerExists: result.CustomerExists,
-		CustomerID:     result.CustomerID,
-		FirstName:      result.FirstName,
-		PrimaryAccount: result.PrimaryAccount,
-		AccountStatus:  result.AccountStatus,
-		TimeZone:       result.TimeZone,
-		CreatedAt:      currentDateTime,
-	}
-
-	payload, errJson := json.Marshal(JWTPayload)
-	if errJson != nil {
-		fmt.Println(errJson)
-		return &model.RepoResponse{Success: false, Msg: "Failed to generate token"}
-	}
-	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload, jwtKey)
-	if errToken != nil {
-		fmt.Println(errToken)
-		return &model.RepoResponse{Success: false, Msg: "Login rejected"}
-	}
-
-	authResponse := accountForm.AuthResponse{
-		AccountID:      result.AccountID,
-		UserExists:     result.UserExists,
-		UserID:         result.UserID,
-		CustomerExists: result.CustomerExists,
-		CustomerID:     result.CustomerID,
-		FirstName:      result.FirstName,
-		PrimaryAccount: result.PrimaryAccount,
-		AccountStatus:  result.AccountStatus,
-		TimeZone:       result.TimeZone,
-		CreatedAt:      currentDateTime,
-		Token:          token,
-	}
-
-	return &model.RepoResponse{Success: true, Data: authResponse}
+	return true, result, ""
 }
 
 func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.RegistrationForm) *model.RepoResponse {
