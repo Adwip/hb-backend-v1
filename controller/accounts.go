@@ -4,6 +4,7 @@ import "hb-backend-v1/model"
 import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
 import accountForm "hb-backend-v1/model/account"
+import "hb-backend-v1/service"
 
 type accountCtrl struct {
 }
@@ -16,19 +17,28 @@ func Account() *accountCtrl {
 func (accountCtrl) Login(c *gin.Context) {
 	account := repository.Account()
 	var LoginForm accountForm.LoginForm
+	var loginData accountForm.LoginData
 
 	if err := c.ShouldBindJSON(&LoginForm); err != nil {
 		c.JSON(500, model.WebResponse{Success: false})
 		return
 	}
 
-	result := account.Login(c, &LoginForm)
-	if result.Success {
-		c.JSON(200, model.WebResponse{Success: true, Data: result.Data})
+	exists, loginData, msg := account.Login(c, &LoginForm)
+
+	if !exists {
+		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
 		return
 	}
-	c.JSON(200, model.WebResponse{Success: false, Msg: result.Msg})
 
+	success, authResult, authMsg := service.Auth().CreateLoginSession(loginData)
+
+	if !success {
+		c.JSON(200, model.WebResponse{Success: false, Msg: authMsg})
+		return
+	}
+
+	c.JSON(200, model.WebResponse{Success: true, Data: authResult})
 }
 
 func (accountCtrl) Regristration(c *gin.Context) {
