@@ -5,8 +5,9 @@ import "hb-backend-v1/library"
 import "hb-backend-v1/model"
 import "hb-backend-v1/model/product"
 import "hb-backend-v1/repository"
-import "fmt"
-import "reflect"
+
+// import "fmt"
+// import "reflect"
 
 type productObj struct {
 }
@@ -18,28 +19,27 @@ func Product() *productObj {
 
 func (productObj) AddProduct(c *gin.Context) {
 	var reqBody product.AddProduct
-	var failedInsert map[string]interface{} = map[string]interface{}{}
-	// failedInsert = map[string]interface{{}
 	producRepo := repository.Product()
-	productImageRepo := repository.ProductImage()
 	err := c.BindJSON(&reqBody)
+
 	if err != nil {
 		c.JSON(200, model.WebResponse{Success: false})
 		return
 	}
 
-	insert := producRepo.AddProduct(c, reqBody)
+	success, id, msg := producRepo.AddProduct(c, reqBody)
 
-	if !insert.Success {
-		c.JSON(200, model.WebResponse{Success: false, Msg: insert.Msg})
+	if !success {
+		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
 		return
 	}
-	fmt.Println(reflect.TypeOf(insert.Data))
-	insertImage := productImageRepo.AddProductImages(c, insert.Data.(string), reqBody.Images)
-	if insertImage.Data != nil {
-		failedInsert["productImage"] = insertImage.Data
-	}
-	c.JSON(200, model.WebResponse{Success: true, Data: failedInsert})
+	// fmt.Println(reflect.TypeOf(insert.Data))
+	/*
+		insertImage := productImageRepo.AddProductImages(c, id, reqBody.Images)
+		if insertImage.Data != nil {
+			failedInsert["productImage"] = insertImage.Data
+		}*/
+	c.JSON(200, model.WebResponse{Success: true, Data: id})
 }
 
 func (productObj) AddList(c *gin.Context) {
