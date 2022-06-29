@@ -38,17 +38,13 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, 
 		negotiate = 1
 	}
 
-	productStat := "INSERT INTO product (id_product, user, field, title, negotiate, purchaseType, type, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-	imageStat := "INSERT INTO product_image (id_product_img, product, file_name, base_64) VALUES (?, ?, ?, ?)"
-	SinglePurchaseStat := "INSERT INTO one_time_purchase (id_spc, product, harga, status) VALUES (?, ?, ?, ?)"
-	MultiPurchaseStat := "INSERT INTO multiple_purchase (id_mpc, product, kuota, harga, status) VALUES (?, ?, ?, ?, ?)"
-
 	tx, err := pr.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		fmt.Println(err)
 		return false, "", "Failed to add product"
 	}
 
+	productStat := "INSERT INTO product (id_product, user, field, title, negotiate, purchaseType, type, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 	_, ErrProduct := tx.Exec(productStat, productID, identity.GetUserID(), req.Field, req.Title, negotiate, req.PurchaseType, req.Type, currentTime)
 	if ErrProduct != nil {
 		tx.Rollback()
@@ -56,8 +52,10 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, 
 	}
 
 	if req.PurchaseType == "SPC" {
+		SinglePurchaseStat := "INSERT INTO one_time_purchase (id_spc, product, harga, status) VALUES (?, ?, ?, ?)"
 		_, purchaseError = tx.Exec(SinglePurchaseStat, uuid.New(), productID, req.Price, req.Status)
 	} else {
+		MultiPurchaseStat := "INSERT INTO multiple_purchase (id_mpc, product, kuota, harga, status) VALUES (?, ?, ?, ?, ?)"
 		_, purchaseError = tx.Exec(MultiPurchaseStat, uuid.New(), productID, req.Kuota, req.Price, req.Status)
 	}
 
@@ -66,6 +64,7 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, 
 		fmt.Println(purchaseError)
 	}
 
+	imageStat := "INSERT INTO product_image (id_product_img, product, file_name, base_64) VALUES (?, ?, ?, ?)"
 	for i := 0; i < len(req.Images); i++ {
 		productImage = req.Images[i]
 		_, ImageError = tx.Exec(imageStat, uuid.New(), productID, productImage.ImageName, productImage.Base64)
