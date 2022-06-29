@@ -3,7 +3,6 @@ package repository
 import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "database/sql"
-import "hb-backend-v1/model"
 import "context"
 import "time"
 import "github.com/google/uuid"
@@ -17,47 +16,81 @@ type productRepo struct {
 
 func Product() *productRepo {
 	database := config.Database()
-	connSring := database.GetConnection()
 	product := &productRepo{
-		conn: connSring,
+		conn: database.GetConnection(),
 	}
 	return product
 }
 
-func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) *model.RepoResponse {
+func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, string, string) {
 	var negotiate int8
+	var ImageError, purchaseError error
+	var failedImages int
+	var productImage product.ProductImage
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	identity := library.Identity(c)
 	currentTime := library.Time().CurrentDateTimeDbFormat()
 
 	defer cancel()
 
-	id := uuid.New()
-	if req.Negotiate {
+	productID := uuid.New()
+	if req.OpenNegotiate {
 		negotiate = 1
 	}
-	fmt.Println(id)
-	fmt.Println(identity.GetUserID())
-	statement := "INSERT INTO product (id_product, user, field, judul, negosiasi, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
 
-	result, errInsert := pr.conn.ExecContext(ctx, statement, id, identity.GetUserID(), req.Field, req.Title, negotiate, currentTime)
-	if errInsert != nil {
-		fmt.Println(errInsert)
-		return &model.RepoResponse{Success: false, Msg: "Failed to add product"}
+	productStat := "INSERT INTO product (id_product, user, field, title, negotiate, purchaseType, type, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+	imageStat := "INSERT INTO product_image (id_product_img, product, file_name, base_64) VALUES (?, ?, ?, ?)"
+	SinglePurchaseStat := "INSERT INTO one_time_purchase (id_spc, product, harga, status) VALUES (?, ?, ?, ?)"
+	MultiPurchaseStat := "INSERT INTO multiple_purchase (id_mpc, product, kuota, harga, status) VALUES (?, ?, ?, ?, ?)"
+
+	tx, err := pr.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	if err != nil {
+		fmt.Println(err)
+		return false, "", "Failed to add product"
 	}
 
-	inserted, errRows := result.RowsAffected()
-	if errRows != nil {
-		fmt.Println(errRows)
-		return &model.RepoResponse{Success: false, Msg: "Failed to add product"}
-	} else if inserted == 0 {
-		fmt.Println("Inserted value ", inserted)
-		return &model.RepoResponse{Success: false, Msg: "Failed to add product"}
+	_, ErrProduct := tx.Exec(productStat, productID, identity.GetUserID(), req.Field, req.Title, negotiate, req.PurchaseType, req.Type, currentTime)
+	if ErrProduct != nil {
+		tx.Rollback()
+		fmt.Println(ErrProduct)
 	}
-	return &model.RepoResponse{Success: true, Data: id.String()}
+
+	if req.PurchaseType == "SPC" {
+		_, purchaseError = tx.Exec(SinglePurchaseStat, uuid.New(), productID, req.Price, req.Status)
+	} else {
+		_, purchaseError = tx.Exec(MultiPurchaseStat, uuid.New(), productID, req.Kuota, req.Price, req.Status)
+	}
+
+	if purchaseError != nil {
+		tx.Rollback()
+		fmt.Println(purchaseError)
+	}
+
+	for i := 0; i < len(req.Images); i++ {
+		productImage = req.Images[i]
+		_, ImageError = tx.Exec(imageStat, uuid.New(), productID, productImage.ImageName, productImage.Base64)
+		if ImageError != nil {
+			fmt.Println(ImageError)
+			failedImages++
+		}
+	}
+
+	if failedImages == len(req.Images) {
+		tx.Rollback()
+	}
+
+	errTrans := tx.Commit()
+
+	if errTrans != nil {
+		fmt.Println(errTrans)
+		return false, "", "Failed to add product"
+
+	}
+
+	return true, productID.String(), ""
 }
 
-func (pr productRepo) ProductByID(c *gin.Context, id string) *model.RepoResponse {
-
-	return &model.RepoResponse{Success: true}
+func (pr productRepo) ProductByID(c *gin.Context, id string) (bool, product.ProductByIdResponse) {
+	var result product.ProductByIdResponse
+	return true, result
 }

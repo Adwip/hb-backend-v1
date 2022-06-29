@@ -1,12 +1,16 @@
 package product
 
 type AddProduct struct {
-	Title     string         `json:"product_name"`
-	Field     int8           `json:"fieldType"`
-	Negotiate bool           `json:"isNegotiate"`
-	Images    []ProductImage `json:"images"`
-	Harga     int64          `json:"price"`
-	SalesType int8           `json:"salesType"`
+	Title         string         `json:"productName"`
+	Field         int8           `json:"fieldType"`
+	OpenNegotiate bool           `json:"openNegotiate"`
+	Price         int64          `json:"price"`
+	PurchaseType  string         `json:"purchaseType"`
+	Type          string         `json:"type"`
+	Displayed     bool           `json:"displayed"`
+	Kuota         int32          `json:"kuota"`
+	Status        string         `json:"status"`
+	Images        []ProductImage `json:"images"`
 }
 
 type ModifyProductImages struct {
