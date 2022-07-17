@@ -14,13 +14,13 @@ func nonAuthenticatedRoutes(router *gin.Engine) {
 	}
 
 	productCtrl := controller.Product()
-	product := router.Group("/user-product")
+	product := router.Group("/product")
 	{
-		// product.POST("/", productCtrl.AddProduct)
-		product.GET("/:id", productCtrl.TestHandlerParams)
-		product.GET("/card/:id", productCtrl.TestHandlerParams)
-		product.GET("/favorites-total/:id", productCtrl.TestHandler)
-		product.GET("/carts-total/:id", productCtrl.TestHandler)
+		product.GET("/recommendation", productCtrl.Recommendation)
+		// product.GET("/:id", productCtrl.TestHandlerParams)
+		// product.GET("/card/:id", productCtrl.TestHandlerParams)
+		// product.GET("/favorites-total/:id", productCtrl.TestHandler)
+		// product.GET("/carts-total/:id", productCtrl.TestHandler)
 	}
 
 	/*

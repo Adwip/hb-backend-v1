@@ -9,6 +9,7 @@ import "github.com/google/uuid"
 import "hb-backend-v1/model/product"
 import "hb-backend-v1/library"
 import "fmt"
+import "hb-backend-v1/model"
 
 type productRepo struct {
 	conn *sql.DB
@@ -89,7 +90,99 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, 
 	return true, productID.String(), ""
 }
 
-func (pr productRepo) ProductByID(c *gin.Context, id string) (bool, product.ProductByIdResponse) {
-	var result product.ProductByIdResponse
+func (pr productRepo) RecommendationProduct(c *gin.Context) (bool, []model.AllProductsResponse) {
+
+	var result []model.AllProductsResponse
+	var row model.AllProductsResponse
+	var errorRow error
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
+	defer cancel()
+
+	sqlStatement := `
+	SELECT 
+		id_product as id,
+		title as productName, 
+		firstName as creator,
+		negotiable, 
+		purchaseType as purchaseType,
+		count(id_favourite) as favorite,
+		price,
+		IFNULL(product_image.file_name, "") as productImage
+		
+	FROM product 
+		INNER JOIN user ON user.id_user = product.user 
+		INNER JOIN account_information ON account_information.account = user.account 
+		LEFT JOIN product_image ON product_image.product = product.id_product 
+		LEFT JOIN favourite ON favourite.product = product.id_product 
+		LEFT JOIN main_image ON main_image.image = product_image.id_product_img 
+		LEFT JOIN one_time_purchase ON one_time_purchase.product = product.id_product 
+		LEFT JOIN multiple_purchase ON multiple_purchase.product = product.id_product 
+	WHERE 
+		(multiple_purchase.kuota IS NOT NULL OR multiple_purchase.kuota > 0) OR (product.purchaseType = 'SPC' AND one_time_purchase.offerStatus = 'On Offering')
+	GROUP BY product.id_product
+	`
+
+	rows, err := pr.conn.QueryContext(ctx, sqlStatement)
+
+	if err != nil {
+		fmt.Println(err)
+		return false, result
+	}
+
+	for rows.Next() {
+		errorRow = rows.Scan(&row.ID, &row.ProductName, &row.Creator, &row.Negotiable, &row.PurchaseType, &row.Favourite, &row.Price, &row.ProductImage)
+		if errorRow != nil {
+			fmt.Println(errorRow)
+			return false, result
+		}
+
+		result = append(result, row)
+	}
+
 	return true, result
 }
+
+/*
+func (pr productRepo) ProductByID(c *gin.Context, id string) (bool, product.ProductByIdResponse) {
+	var result product.ProductByIdResponse
+	var row product.ProductByIdResponse
+
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
+
+	defer cancel()
+
+	sqlStatement := `
+	SELECT
+		title as productName,
+		firstName as creator,
+		negotiable,
+		count(id_favourite) as favorite,
+		price,
+		image as productImage
+
+	FROM product
+		INNER JOIN user ON user.id_user = product.user
+		INNER JOIN account_information ON account_information.account = user.account
+		LEFT JOIN product_image ON product_image.product = product.id_product
+		LEFT JOIN favourite ON favourite.product = product.id_product
+		LEFT JOIN main_image ON main_image.image = product_image.id_product_img
+		LEFT JOIN one_time_purchase ON one_time_purchase.product = product.id_product
+		LEFT JOIN multiple_purchase ON multiple_purchase.product = product.id_product
+	WHERE
+		(multiple_purchase.kuota IS NOT NULL OR multiple_purchase.kuota > 0) OR (product.purchaseType = 'SPC' AND one_time_purchase.offerStatus = 'On Offering')
+	GROUP BY product.id_product
+	`
+
+	rows, err := pr.conn.QueryContext(c, sqlStatement)
+	_ = rows
+	if err!=nil {
+		return false, result
+	}
+
+	for rows.Next() {
+		row = rows.Scan()
+	}
+
+
+	return true, result
+}*/
