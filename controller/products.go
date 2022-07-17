@@ -42,6 +42,29 @@ func (productObj) AddProduct(c *gin.Context) {
 	c.JSON(200, model.WebResponse{Success: true, Data: id})
 }
 
+func (productObj) Recommendation(c *gin.Context) {
+	productRepo := repository.Product()
+
+	exist, result := productRepo.RecommendationProduct(c)
+
+	if !exist {
+		c.JSON(400, model.WebResponse{Success: false, Data: result})
+		return
+	}
+	c.JSON(200, model.WebResponse{Success: true, Data: result})
+}
+
+func (productObj) DetailByID(c *gin.Context) {
+	productRepo := repository.Product()
+
+	exists, result := productRepo.DetailByID(c, c.Param("id"))
+	if !exists {
+		c.JSON(400, model.WebResponse{Success: false, Msg: "Product not found"})
+		return
+	}
+	c.JSON(200, model.WebResponse{Success: true, Data: result})
+}
+
 func (productObj) AddList(c *gin.Context) {
 
 	c.JSON(200, gin.H{"success": true, "result": "Berhasil"})
