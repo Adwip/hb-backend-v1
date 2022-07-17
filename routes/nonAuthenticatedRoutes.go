@@ -17,7 +17,7 @@ func nonAuthenticatedRoutes(router *gin.Engine) {
 	product := router.Group("/product")
 	{
 		product.GET("/recommendation", productCtrl.Recommendation)
-		// product.GET("/:id", productCtrl.TestHandlerParams)
+		product.GET("/:id", productCtrl.DetailByID)
 		// product.GET("/card/:id", productCtrl.TestHandlerParams)
 		// product.GET("/favorites-total/:id", productCtrl.TestHandler)
 		// product.GET("/carts-total/:id", productCtrl.TestHandler)
