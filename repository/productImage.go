@@ -24,6 +24,16 @@ func ProductImage() *productImageRepo {
 	return productImage
 }
 
+func (pi productImageRepo) ImagesByProductID(c *gin.Context, id string) (bool, []model.ProductImagesResponse) {
+	var result []model.ProductImagesResponse
+
+	sqlStatement := `SELECT * from product_image where product = ?`
+
+	_ = sqlStatement
+
+	return true, result
+}
+
 func (pi productImageRepo) AddProductImages(c *gin.Context, productID string, req []product.ProductImage) *model.RepoResponse {
 	var rejectedFile []string
 	var inserted int64
