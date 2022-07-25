@@ -3,21 +3,23 @@ package config
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
 import "fmt"
-import "os"
+import _ "os"
 
-var connection *sql.DB
+// var connection *sql.DB
 
 type MySQL struct {
+	url string
 }
 
-func Database() ConnectionIntf {
-	database := &MySQL{}
-	return database
+func Database(url string) MySQLIntf {
+	return &MySQL{
+		url: url,
+	}
 }
 
-func (MySQL) InitConnection() {
+func (ms MySQL) InitMySQL() *sql.DB {
 	// var err error
-	connResult, err := sql.Open("mysql", os.Getenv("MY_SQL_URL"))
+	connResult, err := sql.Open("mysql" /*os.Getenv("MY_SQL_URL")*/, ms.url)
 	// connResult, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/new_hubing_com")
 	if err != nil {
 		fmt.Println("Failed to connect DB", err)
@@ -29,9 +31,6 @@ func (MySQL) InitConnection() {
 
 	// model.DB = connection
 	// fmt.Println(connResult)
-	connection = connResult
-}
-
-func (MySQL) GetConnection() *sql.DB {
-	return connection
+	// connection = connResult
+	return connResult
 }

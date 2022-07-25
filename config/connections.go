@@ -2,7 +2,6 @@ package config
 
 import "database/sql"
 
-type ConnectionIntf interface {
-	InitConnection()
-	GetConnection() *sql.DB
+type MySQLIntf interface {
+	InitMySQL() *sql.DB
 }

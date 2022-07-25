@@ -6,24 +6,28 @@ import "hb-backend-v1/library"
 import "hb-backend-v1/model"
 import accountForm "hb-backend-v1/model/account"
 import "database/sql"
-import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "context"
 import "time"
 import "os"
 import "github.com/google/uuid"
 
+// import "hb-backend-v1/config"
+
 type AccountObj struct {
 	conn *sql.DB
 }
 
-func Account() *AccountObj {
-	database := config.Database()
-	connSring := database.GetConnection()
-	account := &AccountObj{
-		conn: connSring,
+type AccountInt interface {
+	Login(*gin.Context, *accountForm.LoginForm) (bool, accountForm.LoginData, string)
+	RegistrationUser(*gin.Context, accountForm.RegistrationForm) *model.RepoResponse
+	UpdatePassword(*gin.Context, accountForm.UpdatePasswordForm) *model.RepoResponse
+}
+
+func Account(db *sql.DB) AccountInt {
+	return &AccountObj{
+		conn: db,
 	}
-	return account
 }
 
 func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) (bool, accountForm.LoginData, string) {

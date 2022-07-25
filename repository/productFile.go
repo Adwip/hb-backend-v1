@@ -1,5 +1,6 @@
 package repository
 
+/*
 import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "database/sql"
@@ -61,3 +62,4 @@ func (pi productImageRepo) AddProductFiles(c *gin.Context, productID string, req
 	return &model.RepoResponse{Success: true}
 
 }
+*/

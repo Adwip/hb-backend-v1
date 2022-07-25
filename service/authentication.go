@@ -1,63 +1,88 @@
 package service
 
-import lib "hb-backend-v1/library"
+// import lib "hb-backend-v1/library"
 import "hb-backend-v1/model/account"
-import "encoding/json"
+
+// import "encoding/json"
 import "fmt"
-import "os"
 
-type authentication struct {
+// import "os"
+import "hb-backend-v1/repository"
+import "github.com/gin-gonic/gin"
+
+type AuthenticationInt interface {
+	Login(*gin.Context) (bool, account.AuthResponse, string)
+	LogOut()
 }
 
-func Auth() *authentication {
-	return &authentication{}
+type AuthenticationService struct {
+	account repository.AccountInt
 }
 
-func (authentication) CreateLoginSession(req account.LoginData) (bool, account.AuthResponse, string) {
+func NewAuthentication(account *repository.AccountInt) AuthenticationInt {
+	return &AuthenticationService{
+		account: *account,
+	}
+}
+
+func (service AuthenticationService) Login(c *gin.Context) (bool, account.AuthResponse, string) {
 	var authResponse account.AuthResponse
-	jwtLib := lib.JsonWT()
-	currentDateTime := lib.Time().CurrentTimeUnix()
-	jwtKey := os.Getenv("JWT_SECRET_KEY")
+	// account := accountHandler.authentication
+	var LoginForm account.LoginForm
 
-	JWTPayload := account.JWTPayload{
-		AccountID:      req.AccountID,
-		UserID:         req.UserID,
-		CustomerID:     req.CustomerID,
-		FirstName:      req.FirstName,
-		PrimaryAccount: req.PrimaryAccount,
-		AccountStatus:  req.AccountStatus,
-		TimeZone:       req.TimeZone,
-		CreatedAt:      currentDateTime,
-	}
+	// var loginData accountForm.LoginData
 
-	payload, errJson := json.Marshal(JWTPayload)
-	if errJson != nil {
-		fmt.Println(errJson)
-		return false, authResponse, "Failed to generate token"
+	if err := c.ShouldBindJSON(&LoginForm); err != nil {
+		// c.JSON(500, model.WebResponse{Success: false})
+		// return
+		fmt.Println(err)
 	}
+	fmt.Println(LoginForm)
+	// fmt.Println(service.account.Login(c))
+	/*
+		jwtLib := lib.JsonWT()
+		currentDateTime := lib.Time().CurrentTimeUnix()
+		jwtKey := os.Getenv("JWT_SECRET_KEY")
 
-	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload, jwtKey)
-	if errToken != nil {
-		fmt.Println(errToken)
-		return false, authResponse, "Login rejected"
-	}
+		JWTPayload := account.JWTPayload{
+			AccountID:      req.AccountID,
+			UserID:         req.UserID,
+			CustomerID:     req.CustomerID,
+			FirstName:      req.FirstName,
+			PrimaryAccount: req.PrimaryAccount,
+			AccountStatus:  req.AccountStatus,
+			TimeZone:       req.TimeZone,
+			CreatedAt:      currentDateTime,
+		}
 
-	authResponse = account.AuthResponse{
-		AccountID:      req.AccountID,
-		UserID:         req.UserID,
-		CustomerID:     req.CustomerID,
-		FirstName:      req.FirstName,
-		PrimaryAccount: req.PrimaryAccount,
-		AccountStatus:  req.AccountStatus,
-		TimeZone:       req.TimeZone,
-		CreatedAt:      currentDateTime,
-		Token:          token,
-	}
+		payload, errJson := json.Marshal(JWTPayload)
+		if errJson != nil {
+			fmt.Println(errJson)
+			return false, authResponse, "Failed to generate token"
+		}
+
+		token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload, jwtKey)
+		if errToken != nil {
+			fmt.Println(errToken)
+			return false, authResponse, "Login rejected"
+		}
+
+		authResponse = account.AuthResponse{
+			AccountID:      req.AccountID,
+			UserID:         req.UserID,
+			CustomerID:     req.CustomerID,
+			FirstName:      req.FirstName,
+			PrimaryAccount: req.PrimaryAccount,
+			AccountStatus:  req.AccountStatus,
+			TimeZone:       req.TimeZone,
+			CreatedAt:      currentDateTime,
+			Token:          token,
+		}*/
 
 	return true, authResponse, ""
 
 }
 
-func (authentication) DestryoLoginSession() {
+func (AuthenticationService) LogOut() {
 
 }
