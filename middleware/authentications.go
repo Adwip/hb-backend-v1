@@ -6,16 +6,24 @@ import "hb-backend-v1/library"
 import "strings"
 import "fmt"
 import "os"
+import "hb-backend-v1/repository"
 
-type LoginMdw struct {
+type Authentication interface {
+	Logger(*gin.Context)
+	AccessChecking() bool
 }
 
-func Login() *LoginMdw {
-	login := &LoginMdw{}
-	return login
+type authentication struct {
+	redis repository.AccountInt //Actually for redis, will replcae later
 }
 
-func (LoginMdw) Logger(c *gin.Context) {
+func AuthMiddleware(redis repository.AccountInt) Authentication {
+	return &authentication{
+		redis: redis,
+	}
+}
+
+func (authentication) Logger(c *gin.Context) {
 	reqHeader := c.Request.Header
 	JWT := library.JsonWT()
 	token, isset := reqHeader["Authorization"]
@@ -48,6 +56,6 @@ func (LoginMdw) Logger(c *gin.Context) {
 	c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 3"})
 }
 
-func (LoginMdw) AccessChecking() bool {
+func (authentication) AccessChecking() bool {
 	return true
 }

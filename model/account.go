@@ -23,38 +23,6 @@ type UpdatePasswordRequest struct {
 	ConfirmPassword string `json:"confirmPassword"`
 }
 
-type AccountResponse struct {
-	Id       int
-	Name     string
-	Username string
-	Email    string
-}
-
-type LoginResponse struct {
-	Id       int
-	Name     string
-	Username string
-	Email    string
-	Password string
-}
-
-type FinalResultResponse struct {
-	Id        int
-	Name      string
-	UserType  bool
-	CreatedAt string
-	Token     string
-}
-
-/*
-type AuthResult struct {
-	Name      string `json:"name"`
-	Username  string `json:"username"`
-	TimeZone  string `json:"timeZone"`
-	CreatedAt int64  `json:"createdAt"`
-	Token     string `json:"token"`
-}*/
-
 type LoginDataResponse struct {
 	AccountID      string
 	UserID         string
@@ -64,6 +32,11 @@ type LoginDataResponse struct {
 	AccountStatus  int
 	TimeZone       string
 	Password       string
+}
+
+type JWTHeaderResponse struct {
+	Alg string `json:"alg"`
+	Typ string `json:"typ"`
 }
 
 type JWTPayloadResponse struct {
@@ -79,7 +52,7 @@ type JWTPayloadResponse struct {
 	CreatedAt      int64  `json:"createdAt"`
 }
 
-type AuthResponse struct {
+type AccountLoginResponse struct {
 	AccountID      string `json:"accountID"`
 	UserID         string `json:"userID"`
 	CustomerID     string `json:"customerID"`
@@ -89,9 +62,4 @@ type AuthResponse struct {
 	TimeZone       string `json:"timeZone"`
 	CreatedAt      int64  `json:"createdAt"`
 	Token          string `json:"token"`
-}
-
-type JWTHeader struct {
-	Alg string `json:"alg"`
-	Typ string `json:"typ"`
 }

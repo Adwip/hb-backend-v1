@@ -31,10 +31,14 @@ func (accountHandler AccountCtrl) Routes(router *gin.Engine) {
 
 func (handler AccountCtrl) Login(c *gin.Context) {
 
-	_, _, _ = handler.authenticationService.Login(c)
+	success, result, msg := handler.authenticationService.Login(c)
 
+	if !success {
+		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
+		return
+	}
 	// fmt.Println(reflect.TypeOf(accountHandler.authenticationService))
-	c.JSON(200, model.WebResponse{Success: true})
+	c.JSON(200, model.WebResponse{Success: true, Data: result})
 
 	/*
 		exists, loginData, msg := account.Login(c, &LoginForm)

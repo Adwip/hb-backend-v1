@@ -6,14 +6,14 @@ import _ "hb-backend-v1/controller"
 
 func Routes() *gin.Engine {
 	router := gin.New()
+	authenticatedRoutes(router)
+	nonAuthenticatedRoutes(router)
 	/*
 		corsValidator := middleware.CORS()
 		handler := controller.Handler()
 
 		// router.Use(loginRoute)
 		router.Use(corsValidator.Cors)
-		authenticatedRoutes(router)
-		nonAuthenticatedRoutes(router)
 		// router.Use(loginValidator.LoginChecking)
 
 		router.OPTIONS("", handler.Options)

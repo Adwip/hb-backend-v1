@@ -1,85 +1,91 @@
 package service
 
-// import lib "hb-backend-v1/library"
-import "hb-backend-v1/model/account"
+import "hb-backend-v1/utils"
+import "hb-backend-v1/model"
 
-// import "encoding/json"
+import "encoding/json"
 import "fmt"
 
-// import "os"
+import "os"
 import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
 
 type AuthenticationInt interface {
-	Login(*gin.Context) (bool, account.AuthResponse, string)
+	Login(*gin.Context) (bool, model.AccountLoginResponse, string)
 	LogOut()
 }
 
 type AuthenticationService struct {
-	account repository.AccountInt
+	accountRepo repository.AccountInt
 }
 
 func NewAuthentication(account *repository.AccountInt) AuthenticationInt {
 	return &AuthenticationService{
-		account: *account,
+		accountRepo: *account,
 	}
 }
 
-func (service AuthenticationService) Login(c *gin.Context) (bool, account.AuthResponse, string) {
-	var authResponse account.AuthResponse
+func (service AuthenticationService) Login(c *gin.Context) (bool, model.AccountLoginResponse, string) {
+	var loginResult model.AccountLoginResponse
 	// account := accountHandler.authentication
-	var LoginForm account.LoginForm
+	var loginForm model.LoginRequest
 
 	// var loginData accountForm.LoginData
 
-	if err := c.ShouldBindJSON(&LoginForm); err != nil {
+	if err := c.ShouldBindJSON(&loginForm); err != nil {
 		// c.JSON(500, model.WebResponse{Success: false})
 		// return
 		fmt.Println(err)
 	}
-	fmt.Println(LoginForm)
+
+	exists, accountData, msg := service.accountRepo.Login(c, loginForm)
+
+	if !exists {
+		return false, loginResult, msg
+	}
+
 	// fmt.Println(service.account.Login(c))
-	/*
-		jwtLib := lib.JsonWT()
-		currentDateTime := lib.Time().CurrentTimeUnix()
-		jwtKey := os.Getenv("JWT_SECRET_KEY")
 
-		JWTPayload := account.JWTPayload{
-			AccountID:      req.AccountID,
-			UserID:         req.UserID,
-			CustomerID:     req.CustomerID,
-			FirstName:      req.FirstName,
-			PrimaryAccount: req.PrimaryAccount,
-			AccountStatus:  req.AccountStatus,
-			TimeZone:       req.TimeZone,
-			CreatedAt:      currentDateTime,
-		}
+	jwtLib := utils.JsonWT()
+	currentDateTime := utils.Time().CurrentTimeUnix()
+	jwtKey := os.Getenv("JWT_SECRET_KEY")
 
-		payload, errJson := json.Marshal(JWTPayload)
-		if errJson != nil {
-			fmt.Println(errJson)
-			return false, authResponse, "Failed to generate token"
-		}
+	JWTPayload := model.JWTPayloadResponse{
+		AccountID:      accountData.AccountID,
+		UserID:         accountData.UserID,
+		CustomerID:     accountData.CustomerID,
+		FirstName:      accountData.FirstName,
+		PrimaryAccount: accountData.PrimaryAccount,
+		AccountStatus:  accountData.AccountStatus,
+		TimeZone:       accountData.TimeZone,
+		CreatedAt:      currentDateTime,
+	}
 
-		token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload, jwtKey)
-		if errToken != nil {
-			fmt.Println(errToken)
-			return false, authResponse, "Login rejected"
-		}
+	payload, errJson := json.Marshal(JWTPayload)
+	if errJson != nil {
+		fmt.Println(errJson)
+		return false, loginResult, "Failed to generate token"
+	}
 
-		authResponse = account.AuthResponse{
-			AccountID:      req.AccountID,
-			UserID:         req.UserID,
-			CustomerID:     req.CustomerID,
-			FirstName:      req.FirstName,
-			PrimaryAccount: req.PrimaryAccount,
-			AccountStatus:  req.AccountStatus,
-			TimeZone:       req.TimeZone,
-			CreatedAt:      currentDateTime,
-			Token:          token,
-		}*/
+	token, errToken := jwtLib.GenerateToken("SHA256", "JWT", payload, jwtKey)
+	if errToken != nil {
+		fmt.Println(errToken)
+		return false, loginResult, "Login rejected"
+	}
 
-	return true, authResponse, ""
+	loginResult = model.AccountLoginResponse{
+		AccountID:      accountData.AccountID,
+		UserID:         accountData.UserID,
+		CustomerID:     accountData.CustomerID,
+		FirstName:      accountData.FirstName,
+		PrimaryAccount: accountData.PrimaryAccount,
+		AccountStatus:  accountData.AccountStatus,
+		TimeZone:       accountData.TimeZone,
+		CreatedAt:      currentDateTime,
+		Token:          token,
+	}
+
+	return true, loginResult, ""
 
 }
 

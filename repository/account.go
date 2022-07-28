@@ -3,8 +3,8 @@ package repository
 // import "encoding/json"
 import "fmt"
 import "hb-backend-v1/library"
+import "hb-backend-v1/utils"
 import "hb-backend-v1/model"
-import accountForm "hb-backend-v1/model/account"
 import "database/sql"
 import "github.com/gin-gonic/gin"
 import "context"
@@ -19,9 +19,9 @@ type AccountObj struct {
 }
 
 type AccountInt interface {
-	Login(*gin.Context, *accountForm.LoginForm) (bool, accountForm.LoginData, string)
-	RegistrationUser(*gin.Context, accountForm.RegistrationForm) *model.RepoResponse
-	UpdatePassword(*gin.Context, accountForm.UpdatePasswordForm) *model.RepoResponse
+	Login(*gin.Context, model.LoginRequest) (bool, model.LoginDataResponse, string)
+	RegistrationUser(*gin.Context, model.RegistrationRequest) *model.RepoResponse
+	UpdatePassword(*gin.Context, model.UpdatePasswordRequest) *model.RepoResponse
 }
 
 func Account(db *sql.DB) AccountInt {
@@ -30,11 +30,11 @@ func Account(db *sql.DB) AccountInt {
 	}
 }
 
-func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) (bool, accountForm.LoginData, string) {
-	var result accountForm.LoginData
+func (account *AccountObj) Login(c *gin.Context, form model.LoginRequest) (bool, model.LoginDataResponse, string) {
+	var result model.LoginDataResponse
 
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
-	hash := library.Hash()
+	hash := utils.Hash()
 	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
 
 	defer cancel()
@@ -54,7 +54,7 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) (b
 	return true, result, ""
 }
 
-func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.RegistrationForm) *model.RepoResponse {
+func (account AccountObj) RegistrationUser(c *gin.Context, form model.RegistrationRequest) *model.RepoResponse {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	// _ = form
 	var accountTypeTable string
@@ -113,7 +113,7 @@ func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.Regi
 	return &model.RepoResponse{Success: true}
 }
 
-func (account AccountObj) UpdatePassword(c *gin.Context, form accountForm.UpdatePasswordForm) *model.RepoResponse {
+func (account AccountObj) UpdatePassword(c *gin.Context, form model.UpdatePasswordRequest) *model.RepoResponse {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	identity := library.Identity(c)
 	hash := library.Hash()
