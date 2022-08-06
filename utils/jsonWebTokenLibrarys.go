@@ -1,4 +1,4 @@
-package library
+package utils
 
 import accountForm "hb-backend-v1/model/account"
 import "encoding/json"

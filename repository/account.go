@@ -2,35 +2,38 @@ package repository
 
 // import "encoding/json"
 import "fmt"
-import "hb-backend-v1/library"
+import "hb-backend-v1/utils"
 import "hb-backend-v1/model"
-import accountForm "hb-backend-v1/model/account"
 import "database/sql"
-import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "context"
 import "time"
 import "os"
 import "github.com/google/uuid"
 
+// import "hb-backend-v1/config"
+
 type AccountObj struct {
 	conn *sql.DB
 }
 
-func Account() *AccountObj {
-	database := config.Database()
-	connSring := database.GetConnection()
-	account := &AccountObj{
-		conn: connSring,
-	}
-	return account
+type AccountInt interface {
+	Login(*gin.Context, model.LoginRequest) (bool, model.LoginDataResponse, string)
+	Registration(*gin.Context, model.RegistrationRequest) (bool, string, string)
+	// UpdatePassword(*gin.Context, model.UpdatePasswordRequest) *model.RepoResponse
 }
 
-func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) (bool, accountForm.LoginData, string) {
-	var result accountForm.LoginData
+func Account(db *sql.DB) AccountInt {
+	return &AccountObj{
+		conn: db,
+	}
+}
+
+func (account *AccountObj) Login(c *gin.Context, form model.LoginRequest) (bool, model.LoginDataResponse, string) {
+	var result model.LoginDataResponse
 
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
-	hash := library.Hash()
+	hash := utils.Hash()
 	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
 
 	defer cancel()
@@ -50,66 +53,59 @@ func (account *AccountObj) Login(c *gin.Context, form *accountForm.LoginForm) (b
 	return true, result, ""
 }
 
-func (account AccountObj) RegistrationUser(c *gin.Context, form accountForm.RegistrationForm) *model.RepoResponse {
+func (account AccountObj) Registration(c *gin.Context, form model.RegistrationRequest) (bool, string, string) {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
-	// _ = form
 	var accountTypeTable string
-	// var errorMsg map[string]string
+
 	id := uuid.New()
 	accInfID := uuid.New()
-	hash := library.Hash()
-	timeLib := library.Time()
-	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
+	generalID := uuid.New()
+	timeLib := utils.Time()
 	createdAt := timeLib.CurrentDateTimeDbFormat()
-	// _ = id
-	// _ = ctx
 	defer cancel()
-	// sqlStatement := "insert into "
+
 	accountTable := "insert into account (id_account, username, email, primaryAccount, password) values(?, ?, ?, ?, ?)"
 	accountInformationTable := "insert into account_information (id_account_inf, account, firstName, lastName, timeZone, phone, createdAt) values(?, ?, ?, ?, ?, ?, ?)"
 	if form.AccountType == 1 {
-		accountTypeTable = "insert into user (account, registeredAt, status) values(?, ?, ?)"
+		accountTypeTable = "insert into user (id_user, account, registeredAt, status) values(?, ?, ?, ?)"
 	} else {
-		accountTypeTable = "insert into customer (account, registeredAt, status) values(?, ?, ?)"
+		accountTypeTable = "insert into customer (id_customer, account, registeredAt, status) values(?, ?, ?, ?)"
 	}
-	hashedPassword := hash.SHA256(form.Password, passwordKey)
-	// _ = hashedPassword
 
 	tx, err := account.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
-		return &model.RepoResponse{Success: false, Msg: err.Error()}
+		fmt.Println(err)
+		return false, "", "Failed to add"
 	}
 
-	_, execErr1 := tx.Exec(accountTable, id, form.Username, form.Email, form.AccountType, hashedPassword)
+	_, execErr1 := tx.Exec(accountTable, id, form.Username, form.Email, form.AccountType, form.Password)
 	if execErr1 != nil {
 		tx.Rollback()
 		fmt.Println(execErr1)
-		// return &model.RepoResponse{Success: true, Msg: execErr1.Error()}
 	}
 	_, execErr2 := tx.Exec(accountInformationTable, accInfID, id, form.FirstName, form.LastName, form.TimeZone, form.Phone, createdAt)
 	if execErr2 != nil {
 		fmt.Println(execErr2)
 		tx.Rollback()
-		// return &model.RepoResponse{Success: true, Msg: execErr2.Error()}
 	}
 
-	_, execErr3 := tx.Exec(accountTypeTable, id, createdAt, 1)
+	_, execErr3 := tx.Exec(accountTypeTable, generalID, id, createdAt, 1)
 
 	if execErr3 != nil {
 		fmt.Println(execErr3)
 		tx.Rollback()
-		// return &model.RepoResponse{Success: true, Msg: execErr3.Error()}
 	}
 	errTrans := tx.Commit()
 
 	if errTrans != nil {
-		return &model.RepoResponse{Success: false, Msg: errTrans.Error()}
+		fmt.Println(errTrans)
+		return false, "", "Failed to add"
 	}
-
-	return &model.RepoResponse{Success: true}
+	return true, id.String(), "Failed to add"
 }
 
-func (account AccountObj) UpdatePassword(c *gin.Context, form accountForm.UpdatePasswordForm) *model.RepoResponse {
+/*
+func (account AccountObj) UpdatePassword(c *gin.Context, form model.UpdatePasswordRequest) *model.RepoResponse {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	identity := library.Identity(c)
 	hash := library.Hash()
@@ -137,4 +133,4 @@ func (account AccountObj) UpdatePassword(c *gin.Context, form accountForm.Update
 		return &model.RepoResponse{Success: false, Msg: "Failed to update password"}
 	}
 	return &model.RepoResponse{Success: true}
-}
+}*/

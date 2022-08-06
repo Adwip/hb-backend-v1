@@ -1,4 +1,4 @@
-package library
+package utils
 
 import "crypto/hmac"
 import "encoding/hex"

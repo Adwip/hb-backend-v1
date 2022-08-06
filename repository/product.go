@@ -1,5 +1,6 @@
 package repository
 
+/*
 import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "database/sql"
@@ -99,25 +100,25 @@ func (pr productRepo) RecommendationProduct(c *gin.Context) (bool, []model.AllPr
 	defer cancel()
 
 	sqlStatement := `
-	SELECT 
+	SELECT
 		id_product as id,
-		title as productName, 
+		title as productName,
 		firstName as creator,
-		negotiable, 
+		negotiable,
 		purchaseType as purchaseType,
 		count(id_favourite) as favorite,
 		price,
 		IFNULL(product_image.file_name, "") as productImage
-		
-	FROM product 
-		INNER JOIN user ON user.id_user = product.user 
-		INNER JOIN account_information ON account_information.account = user.account 
-		LEFT JOIN product_image ON product_image.product = product.id_product 
-		LEFT JOIN favourite ON favourite.product = product.id_product 
-		LEFT JOIN main_image ON main_image.image = product_image.id_product_img 
-		LEFT JOIN one_time_purchase ON one_time_purchase.product = product.id_product 
-		LEFT JOIN multiple_purchase ON multiple_purchase.product = product.id_product 
-	WHERE 
+
+	FROM product
+		INNER JOIN user ON user.id_user = product.user
+		INNER JOIN account_information ON account_information.account = user.account
+		LEFT JOIN product_image ON product_image.product = product.id_product
+		LEFT JOIN favourite ON favourite.product = product.id_product
+		LEFT JOIN main_image ON main_image.image = product_image.id_product_img
+		LEFT JOIN one_time_purchase ON one_time_purchase.product = product.id_product
+		LEFT JOIN multiple_purchase ON multiple_purchase.product = product.id_product
+	WHERE
 		(multiple_purchase.kuota IS NOT NULL OR multiple_purchase.kuota > 0) OR (product.purchaseType = 'SPC' AND one_time_purchase.offerStatus = 'On Offering')
 	GROUP BY product.id_product
 	`
@@ -149,27 +150,27 @@ func (pr productRepo) DetailByID(c *gin.Context, id string) (bool, model.Product
 	defer cancel()
 
 	sqlStatement := `
-	SELECT 
+	SELECT
 		id_product as id,
-		title as productName, 
+		title as productName,
 		firstName as creator,
-		negotiable, 
+		negotiable,
 		purchaseType as purchaseType,
 		count(id_favourite) as favorite,
 		price,
 		IFNULL(offerStatus, "") as offerStatus,
 		product.status,
 		IFNULL(product_image.file_name, "") as productImage
-		
-	FROM product 
-		INNER JOIN user ON user.id_user = product.user 
-		INNER JOIN account_information ON account_information.account = user.account 
-		LEFT JOIN product_image ON product_image.product = product.id_product 
-		LEFT JOIN favourite ON favourite.product = product.id_product 
-		LEFT JOIN main_image ON main_image.image = product_image.id_product_img 
-		LEFT JOIN one_time_purchase ON one_time_purchase.product = product.id_product 
-		LEFT JOIN multiple_purchase ON multiple_purchase.product = product.id_product 
-	WHERE 
+
+	FROM product
+		INNER JOIN user ON user.id_user = product.user
+		INNER JOIN account_information ON account_information.account = user.account
+		LEFT JOIN product_image ON product_image.product = product.id_product
+		LEFT JOIN favourite ON favourite.product = product.id_product
+		LEFT JOIN main_image ON main_image.image = product_image.id_product_img
+		LEFT JOIN one_time_purchase ON one_time_purchase.product = product.id_product
+		LEFT JOIN multiple_purchase ON multiple_purchase.product = product.id_product
+	WHERE
 		((multiple_purchase.kuota IS NOT NULL OR multiple_purchase.kuota > 0) OR (product.purchaseType = 'SPC' AND one_time_purchase.offerStatus = 'On Offering')) AND id_product = ?
 	GROUP BY product.id_product
 	`
@@ -184,7 +185,7 @@ func (pr productRepo) DetailByID(c *gin.Context, id string) (bool, model.Product
 	}
 
 	return true, result
-}
+}*/
 
 /*
 func (pr productRepo) ProductByID(c *gin.Context, id string) (bool, product.ProductByIdResponse) {

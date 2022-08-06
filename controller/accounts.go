@@ -1,64 +1,55 @@
 package controller
 
 import "hb-backend-v1/model"
-import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
-import accountForm "hb-backend-v1/model/account"
 import "hb-backend-v1/service"
 
-type accountCtrl struct {
+type AccountCtrl struct {
+	authenticationService service.AuthenticationInt
 }
 
-func Account() *accountCtrl {
-	accountObject := &accountCtrl{}
-	return accountObject
+func Account(auth *service.AuthenticationInt) *AccountCtrl {
+	return &AccountCtrl{
+		authenticationService: *auth,
+	}
 }
 
-func (accountCtrl) Login(c *gin.Context) {
-	account := repository.Account()
-	var LoginForm accountForm.LoginForm
-	var loginData accountForm.LoginData
+func (handler AccountCtrl) Login(c *gin.Context) {
+	var loginForm model.LoginRequest
 
-	if err := c.ShouldBindJSON(&LoginForm); err != nil {
+	if err := c.ShouldBindJSON(&loginForm); err != nil {
 		c.JSON(500, model.WebResponse{Success: false})
 		return
 	}
 
-	exists, loginData, msg := account.Login(c, &LoginForm)
+	success, result, msg := handler.authenticationService.Login(c, loginForm)
 
-	if !exists {
+	if !success {
 		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
 		return
 	}
-
-	success, authResult, authMsg := service.Auth().CreateLoginSession(loginData)
-
-	if !success {
-		c.JSON(200, model.WebResponse{Success: false, Msg: authMsg})
-		return
-	}
-
-	c.JSON(200, model.WebResponse{Success: true, Data: authResult})
+	c.JSON(200, model.WebResponse{Success: true, Data: result})
 }
-
-func (accountCtrl) Regristration(c *gin.Context) {
-	account := repository.Account()
-	var RegistrationForm accountForm.RegistrationForm
+func (handler AccountCtrl) Regristration(c *gin.Context) {
+	var RegistrationForm model.RegistrationRequest
 
 	if err := c.ShouldBindJSON(&RegistrationForm); err != nil {
 		c.JSON(400, gin.H{"success": false, "message": err.Error()})
 		return
 	}
-	result := account.RegistrationUser(c, RegistrationForm)
 
-	if result.Success {
-		c.JSON(200, model.WebResponse{Success: true})
+	success, id, msg := handler.authenticationService.Registration(c, RegistrationForm)
+
+	if !success {
+		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
 		return
 	}
-	c.JSON(200, model.WebResponse{Success: false, Msg: result.Msg})
+	c.JSON(200, model.WebResponse{Success: true, Data: id})
 }
 
-func (accountCtrl) UpdatePassword(c *gin.Context) {
+/*
+
+func (AccountCtrl) UpdatePassword(c *gin.Context) {
 	var UpdatePasswordForm accountForm.UpdatePasswordForm
 	account := repository.Account()
 	if err := c.ShouldBindJSON(&UpdatePasswordForm); err != nil {
@@ -71,7 +62,7 @@ func (accountCtrl) UpdatePassword(c *gin.Context) {
 		return
 	}
 	c.JSON(200, model.WebResponse{Success: true, Msg: result.Msg})
-}
+}*/
 
 /*
 func Test(c *gin.Context) {

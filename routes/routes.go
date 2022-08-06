@@ -1,22 +1,20 @@
 package routes
 
 import "github.com/gin-gonic/gin"
-import "hb-backend-v1/middleware"
-import "hb-backend-v1/controller"
+import "hb-backend-v1/provider"
 
-func Routes() *gin.Engine {
-	router := gin.New()
-	corsValidator := middleware.CORS()
-	handler := controller.Handler()
+func Init(app *gin.Engine, handler *provider.HandlerInit, middleware *provider.MiddlewareInit) {
+
+	// corsValidator := middleware.CORS()
+	// handler := controller.Handler()
+	authenticatedRoutes(app, handler, middleware)
+	nonAuthenticatedRoutes(app, handler)
 
 	// router.Use(loginRoute)
-	router.Use(corsValidator.Cors)
-	authenticatedRoutes(router)
-	nonAuthenticatedRoutes(router)
+	// router.Use(corsValidator.Cors)
 	// router.Use(loginValidator.LoginChecking)
 
-	router.OPTIONS("", handler.Options)
-	router.NoRoute(handler.NoRoute)
+	// router.OPTIONS("", handler.Options)
+	// router.NoRoute(handler.NoRoute)
 
-	return router
 }

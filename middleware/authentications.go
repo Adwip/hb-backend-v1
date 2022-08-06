@@ -2,22 +2,30 @@ package middleware
 
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/model"
-import "hb-backend-v1/library"
+import "hb-backend-v1/utils"
 import "strings"
 import "fmt"
 import "os"
+import "hb-backend-v1/repository"
 
-type LoginMdw struct {
+type AuthenticationInt interface {
+	Logger(*gin.Context)
+	AccessChecking() bool
 }
 
-func Login() *LoginMdw {
-	login := &LoginMdw{}
-	return login
+type authentication struct {
+	redis repository.AccountInt //Actually for redis, will replcae later
 }
 
-func (LoginMdw) Logger(c *gin.Context) {
+func AuthMiddleware(redis *repository.AccountInt) AuthenticationInt {
+	return &authentication{
+		redis: *redis,
+	}
+}
+
+func (authentication) Logger(c *gin.Context) {
 	reqHeader := c.Request.Header
-	JWT := library.JsonWT()
+	JWT := utils.JsonWT()
 	token, isset := reqHeader["Authorization"]
 	jwtKey := os.Getenv("JWT_SECRET_KEY")
 
@@ -48,6 +56,6 @@ func (LoginMdw) Logger(c *gin.Context) {
 	c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 3"})
 }
 
-func (LoginMdw) AccessChecking() bool {
+func (authentication) AccessChecking() bool {
 	return true
 }

@@ -2,6 +2,13 @@ package model
 
 import "github.com/gin-gonic/gin"
 
+type response int
+
+const (
+	SUCCESS response = 200
+	FAILED  response = 500
+)
+
 type WebResponse struct {
 	Success bool        `json:"success"`
 	Msg     string      `json:"msg"`

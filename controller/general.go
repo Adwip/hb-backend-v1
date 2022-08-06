@@ -1,5 +1,6 @@
 package controller
 
+/*
 import "github.com/gin-gonic/gin"
 
 type general struct {
@@ -17,3 +18,4 @@ func (general) Options(c *gin.Context) {
 func (general) NoRoute(c *gin.Context) {
 	c.JSON(404, gin.H{"success": false, "error": "URL Not Found"})
 }
+*/

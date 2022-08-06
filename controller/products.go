@@ -1,5 +1,6 @@
 package controller
 
+/*
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/library"
 import "hb-backend-v1/model"
@@ -34,11 +35,11 @@ func (productObj) AddProduct(c *gin.Context) {
 		return
 	}
 	// fmt.Println(reflect.TypeOf(insert.Data))
-	/*
+
 		insertImage := productImageRepo.AddProductImages(c, id, reqBody.Images)
 		if insertImage.Data != nil {
 			failedInsert["productImage"] = insertImage.Data
-		}*/
+		}
 	c.JSON(200, model.WebResponse{Success: true, Data: id})
 }
 
@@ -90,3 +91,4 @@ func (productObj) TestHandlerParams(c *gin.Context) {
 	params := c.Param("id")
 	c.JSON(200, model.WebResponse{Success: true, Data: params, Msg: "Test params"})
 }
+*/

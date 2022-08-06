@@ -1,5 +1,6 @@
 package config
 
+/*
 import "database/sql"
 import _ "github.com/lib/pq"
 import "fmt"
@@ -34,4 +35,4 @@ func (PostgreSQL) InitConnection() {
 
 func (PostgreSQL) GetConnection() *sql.DB {
 	return postgreConnection
-}
+}*/

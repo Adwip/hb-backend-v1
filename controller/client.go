@@ -1,5 +1,6 @@
 package controller
 
+/*
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/model"
 
@@ -20,3 +21,4 @@ func (clientObject) TestHandlerParams(c *gin.Context) {
 	params := c.Param("id")
 	c.JSON(200, model.WebResponse{Success: true, Data: params, Msg: "Test params"})
 }
+*/
