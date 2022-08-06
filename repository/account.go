@@ -1,8 +1,8 @@
 package repository
 
 // import "encoding/json"
-import "fmt"
-import "hb-backend-v1/library"
+// import "fmt"
+// import "hb-backend-v1/library"
 import "hb-backend-v1/utils"
 import "hb-backend-v1/model"
 import "database/sql"
@@ -10,7 +10,8 @@ import "github.com/gin-gonic/gin"
 import "context"
 import "time"
 import "os"
-import "github.com/google/uuid"
+
+// import "github.com/google/uuid"
 
 // import "hb-backend-v1/config"
 
@@ -20,8 +21,8 @@ type AccountObj struct {
 
 type AccountInt interface {
 	Login(*gin.Context, model.LoginRequest) (bool, model.LoginDataResponse, string)
-	RegistrationUser(*gin.Context, model.RegistrationRequest) *model.RepoResponse
-	UpdatePassword(*gin.Context, model.UpdatePasswordRequest) *model.RepoResponse
+	// RegistrationUser(*gin.Context, model.RegistrationRequest) *model.RepoResponse
+	// UpdatePassword(*gin.Context, model.UpdatePasswordRequest) *model.RepoResponse
 }
 
 func Account(db *sql.DB) AccountInt {
@@ -53,6 +54,8 @@ func (account *AccountObj) Login(c *gin.Context, form model.LoginRequest) (bool,
 	}
 	return true, result, ""
 }
+
+/*
 
 func (account AccountObj) RegistrationUser(c *gin.Context, form model.RegistrationRequest) *model.RepoResponse {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
@@ -141,4 +144,4 @@ func (account AccountObj) UpdatePassword(c *gin.Context, form model.UpdatePasswo
 		return &model.RepoResponse{Success: false, Msg: "Failed to update password"}
 	}
 	return &model.RepoResponse{Success: true}
-}
+}*/

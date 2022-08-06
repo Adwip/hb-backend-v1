@@ -1,6 +1,6 @@
 package main
 
-// import _ "hb-backend-v1/routes"
+import "hb-backend-v1/routes"
 import "hb-backend-v1/config"
 import "github.com/joho/godotenv"
 import "github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import "hb-backend-v1/provider"
 
 func main() {
 	err := godotenv.Load()
-	router := gin.New()
+	app := gin.New()
 
 	if err != nil {
 		panic("Failed to load .env file")
@@ -21,10 +21,12 @@ func main() {
 	repoInit := provider.InitRepositories(mySQL)
 	//Init Services
 	serviceInit := provider.InitServices(repoInit)
+	// Init middleware
+	middleware := provider.InitMiddleware(repoInit)
 	// Init Handlers
 	handler := provider.InitHandlers(serviceInit)
-	// Init Routes
-	provider.InitRoutes(handler, router)
 
-	router.Run(":3001")
+	routes.Init(app, handler, middleware)
+	// router.Run(":3001")
+	app.Run(":3001")
 }

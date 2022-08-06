@@ -30,34 +30,23 @@ func (accountHandler AccountCtrl) Routes(router *gin.Engine) {
 }
 
 func (handler AccountCtrl) Login(c *gin.Context) {
+	var loginForm model.LoginRequest
 
-	success, result, msg := handler.authenticationService.Login(c)
+	if err := c.ShouldBindJSON(&loginForm); err != nil {
+		c.JSON(500, model.WebResponse{Success: false})
+		return
+	}
+
+	success, result, msg := handler.authenticationService.Login(c, loginForm)
 
 	if !success {
 		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
 		return
 	}
-	// fmt.Println(reflect.TypeOf(accountHandler.authenticationService))
 	c.JSON(200, model.WebResponse{Success: true, Data: result})
+}
 
-	/*
-		exists, loginData, msg := account.Login(c, &LoginForm)
-
-		if !exists {
-			c.JSON(200, model.WebResponse{Success: false, Msg: msg})
-			return
-		}
-
-		success, authResult, authMsg := service.Auth().CreateLoginSession(loginData)
-
-		if !success {
-			c.JSON(200, model.WebResponse{Success: false, Msg: authMsg})
-			return
-		}
-
-		c.JSON(200, model.WebResponse{Success: true, Data: authResult})*/
-} /*
-
+/*
 func (AccountCtrl) Regristration(c *gin.Context) {
 	account := repository.Account()
 	var RegistrationForm accountForm.RegistrationForm

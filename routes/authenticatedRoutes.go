@@ -1,10 +1,10 @@
 package routes
 
 import "github.com/gin-gonic/gin"
-import _ "hb-backend-v1/controller"
-import _ "hb-backend-v1/middleware"
+import "hb-backend-v1/provider"
 
-func authenticatedRoutes(router *gin.Engine) {
+func authenticatedRoutes(router *gin.Engine, handler *provider.HandlerInit, middleware *provider.MiddlewareInit) {
+
 	/*
 		loginValidator := middleware.Login()
 		authenticatedRoutes := router.Group("/ar", loginValidator.Logger)

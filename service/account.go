@@ -2,16 +2,14 @@ package service
 
 import "hb-backend-v1/utils"
 import "hb-backend-v1/model"
-
 import "encoding/json"
 import "fmt"
-
 import "os"
 import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
 
 type AuthenticationInt interface {
-	Login(*gin.Context) (bool, model.AccountLoginResponse, string)
+	Login(*gin.Context, model.LoginRequest) (bool, model.AccountLoginResponse, string)
 	LogOut()
 }
 
@@ -25,26 +23,14 @@ func NewAuthentication(account *repository.AccountInt) AuthenticationInt {
 	}
 }
 
-func (service AuthenticationService) Login(c *gin.Context) (bool, model.AccountLoginResponse, string) {
+func (service AuthenticationService) Login(c *gin.Context, loginForm model.LoginRequest) (bool, model.AccountLoginResponse, string) {
 	var loginResult model.AccountLoginResponse
-	// account := accountHandler.authentication
-	var loginForm model.LoginRequest
-
-	// var loginData accountForm.LoginData
-
-	if err := c.ShouldBindJSON(&loginForm); err != nil {
-		// c.JSON(500, model.WebResponse{Success: false})
-		// return
-		fmt.Println(err)
-	}
 
 	exists, accountData, msg := service.accountRepo.Login(c, loginForm)
 
 	if !exists {
 		return false, loginResult, msg
 	}
-
-	// fmt.Println(service.account.Login(c))
 
 	jwtLib := utils.JsonWT()
 	currentDateTime := utils.Time().CurrentTimeUnix()

@@ -1,19 +1,16 @@
 package routes
 
 import "github.com/gin-gonic/gin"
-import _ "hb-backend-v1/controller"
+import "hb-backend-v1/provider"
 
-func nonAuthenticatedRoutes(router *gin.Engine) {
+func nonAuthenticatedRoutes(router *gin.Engine, handler *provider.HandlerInit) {
+
+	authGroup := router.Group("/auth")
+	authGroup.POST("/", handler.Authentication.Login)
+	// auth.POST("/registration", accountCtrl.Regristration)
+	// auth.POST("/destroy",nil)
 
 	/*
-		accountCtrl := controller.Account()
-		auth := router.Group("/auth")
-		{
-			auth.POST("/login", accountCtrl.Login)
-			auth.POST("/registration", accountCtrl.Regristration)
-			// auth.POST("/destroy",nil)
-		}
-
 		productCtrl := controller.Product()
 		product := router.Group("/product")
 		{

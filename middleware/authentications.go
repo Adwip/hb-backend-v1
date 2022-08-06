@@ -2,13 +2,13 @@ package middleware
 
 import "github.com/gin-gonic/gin"
 import "hb-backend-v1/model"
-import "hb-backend-v1/library"
+import "hb-backend-v1/utils"
 import "strings"
 import "fmt"
 import "os"
 import "hb-backend-v1/repository"
 
-type Authentication interface {
+type AuthenticationInt interface {
 	Logger(*gin.Context)
 	AccessChecking() bool
 }
@@ -17,15 +17,15 @@ type authentication struct {
 	redis repository.AccountInt //Actually for redis, will replcae later
 }
 
-func AuthMiddleware(redis repository.AccountInt) Authentication {
+func AuthMiddleware(redis *repository.AccountInt) AuthenticationInt {
 	return &authentication{
-		redis: redis,
+		redis: *redis,
 	}
 }
 
 func (authentication) Logger(c *gin.Context) {
 	reqHeader := c.Request.Header
-	JWT := library.JsonWT()
+	JWT := utils.JsonWT()
 	token, isset := reqHeader["Authorization"]
 	jwtKey := os.Getenv("JWT_SECRET_KEY")
 
