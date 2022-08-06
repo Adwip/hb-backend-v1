@@ -10,3 +10,7 @@ func (am AccountMock) Login(c *gin.Context, form model.LoginRequest) (bool, mode
 	var result model.LoginDataResponse
 	return false, result, ""
 }
+
+func (am AccountMock) Registration(c *gin.Context, form model.RegistrationRequest) (bool, string, string) {
+	return false, "result", ""
+}

@@ -1,16 +1,8 @@
 package controller
 
 import "hb-backend-v1/model"
-
-// import "hb-backend-v1/repository"
-// import "github.com/gin-gonic/gin"
-// import accountForm "hb-backend-v1/model/account"
 import "github.com/gin-gonic/gin"
-
-// import accountForm "hb-backend-v1/model/account"
 import "hb-backend-v1/service"
-
-// import "reflect"
 
 type AccountCtrl struct {
 	authenticationService service.AuthenticationInt
@@ -19,13 +11,6 @@ type AccountCtrl struct {
 func Account(auth *service.AuthenticationInt) *AccountCtrl {
 	return &AccountCtrl{
 		authenticationService: *auth,
-	}
-}
-
-func (accountHandler AccountCtrl) Routes(router *gin.Engine) {
-	routes := router.Group("/auth")
-	{
-		routes.POST("/", accountHandler.Login)
 	}
 }
 
@@ -45,24 +30,24 @@ func (handler AccountCtrl) Login(c *gin.Context) {
 	}
 	c.JSON(200, model.WebResponse{Success: true, Data: result})
 }
-
-/*
-func (AccountCtrl) Regristration(c *gin.Context) {
-	account := repository.Account()
-	var RegistrationForm accountForm.RegistrationForm
+func (handler AccountCtrl) Regristration(c *gin.Context) {
+	var RegistrationForm model.RegistrationRequest
 
 	if err := c.ShouldBindJSON(&RegistrationForm); err != nil {
 		c.JSON(400, gin.H{"success": false, "message": err.Error()})
 		return
 	}
-	result := account.RegistrationUser(c, RegistrationForm)
 
-	if result.Success {
-		c.JSON(200, model.WebResponse{Success: true})
+	success, id, msg := handler.authenticationService.Registration(c, RegistrationForm)
+
+	if !success {
+		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
 		return
 	}
-	c.JSON(200, model.WebResponse{Success: false, Msg: result.Msg})
+	c.JSON(200, model.WebResponse{Success: true, Data: id})
 }
+
+/*
 
 func (AccountCtrl) UpdatePassword(c *gin.Context) {
 	var UpdatePasswordForm accountForm.UpdatePasswordForm

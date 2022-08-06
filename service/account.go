@@ -9,6 +9,7 @@ import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
 
 type AuthenticationInt interface {
+	Registration(*gin.Context, model.RegistrationRequest) (bool, string, string)
 	Login(*gin.Context, model.LoginRequest) (bool, model.AccountLoginResponse, string)
 	LogOut()
 }
@@ -21,6 +22,15 @@ func NewAuthentication(account *repository.AccountInt) AuthenticationInt {
 	return &AuthenticationService{
 		accountRepo: *account,
 	}
+}
+
+func (service AuthenticationService) Registration(c *gin.Context, req model.RegistrationRequest) (bool, string, string) {
+	hash := utils.Hash()
+	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
+	req.Password = hash.SHA256(req.Password, passwordKey)
+
+	success, id, msg := service.accountRepo.Registration(c, req)
+	return success, id, msg
 }
 
 func (service AuthenticationService) Login(c *gin.Context, loginForm model.LoginRequest) (bool, model.AccountLoginResponse, string) {
