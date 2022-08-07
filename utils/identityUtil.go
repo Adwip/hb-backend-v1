@@ -1,13 +1,15 @@
 package utils
 
 import _ "context"
-import accountForm "hb-backend-v1/model/account"
+import m "hb-backend-v1/model"
 import "github.com/gin-gonic/gin"
 
+// import "fmt"
+
 type IdentityLib struct {
-	header        accountForm.JWTHeader
+	header        m.JWTHeaderResponse
 	headerExists  bool
-	payload       accountForm.JWTPayload
+	payload       m.JWTPayloadResponse
 	payloadExists bool
 }
 
@@ -15,9 +17,9 @@ func Identity(ctx *gin.Context) *IdentityLib {
 	header, headerExists := ctx.Get("JWTHeader")
 	payload, payloadExists := ctx.Get("JWTPayload")
 	identity := &IdentityLib{
-		header:        header.(accountForm.JWTHeader),
+		header:        header.(m.JWTHeaderResponse),
 		headerExists:  headerExists,
-		payload:       payload.(accountForm.JWTPayload),
+		payload:       payload.(m.JWTPayloadResponse),
 		payloadExists: payloadExists,
 	}
 	return identity

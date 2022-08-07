@@ -8,6 +8,7 @@ func nonAuthenticatedRoutes(router *gin.Engine, handler *provider.HandlerInit) {
 	authGroup := router.Group("/auth")
 	authGroup.POST("/", handler.Authentication.Login)
 	authGroup.POST("/registration", handler.Authentication.Regristration)
+	// authGroup.PUT("/password", handler.Authentication.Regristration)
 	// auth.POST("/destroy",nil)
 
 	/*

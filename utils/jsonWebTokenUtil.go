@@ -1,6 +1,6 @@
 package utils
 
-import accountForm "hb-backend-v1/model/account"
+import m "hb-backend-v1/model"
 import "encoding/json"
 import "errors"
 import "strings"
@@ -11,8 +11,8 @@ type JWT struct {
 }
 
 // var key string = os.Getenv("JWT_SECRET_KEY")
-var JWTPayload accountForm.JWTPayload
-var JWTHeader accountForm.JWTHeader
+var JWTPayload m.JWTPayloadResponse
+var JWTHeader m.JWTHeaderResponse
 
 func JsonWT() *JWT {
 	jwt := &JWT{}
@@ -25,7 +25,7 @@ func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte, key string
 	cryptoEncode := Hash()
 	base64 := Base64Lib()
 
-	header := accountForm.JWTHeader{Alg: alg, Typ: typ}
+	header := m.JWTHeaderResponse{Alg: alg, Typ: typ}
 
 	headerJson, errHeader := json.Marshal(header)
 
@@ -51,7 +51,7 @@ func (jwt *JWT) GenerateToken(alg string, typ string, payload []byte, key string
 	return finalToken, nil
 }
 
-func (jwt *JWT) VerifiyToken(header string, payload string, signature string, headerObj accountForm.JWTHeader, key string) bool {
+func (jwt *JWT) VerifiyToken(header string, payload string, signature string, headerObj m.JWTHeaderResponse, key string) bool {
 	// mergedHeaderPayload := ""
 	cryptoEncode := Hash()
 	var encodedHeaderPayload string
@@ -64,32 +64,40 @@ func (jwt *JWT) VerifiyToken(header string, payload string, signature string, he
 	return encodedHeaderPayload == signature
 }
 
-func (jwt *JWT) DecodeToken(token string) (accountForm.JWTHeader, accountForm.JWTPayload, error) {
-	var header accountForm.JWTHeader
-	var payload accountForm.JWTPayload
+func (jwt *JWT) DecodeToken(token string) (m.JWTHeaderResponse, m.JWTPayloadResponse, error) {
+	var header m.JWTHeaderResponse
+	var payload m.JWTPayloadResponse
 	base64 := Base64Lib()
 	split := strings.Split(token, ".")
 	if length := len(split); length != 3 {
 		return header, payload, errors.New("token not valid")
 	}
+	// fmt.Println("Token valid pass")
 
 	headerBin, errHeader := base64.Decode(split[0])
 	if errHeader != nil {
+		// fmt.Println(split[0])
 		return header, payload, errHeader
 	}
+	// fmt.Println("Decode split [0] pass")
+
 	errHeader = json.Unmarshal(headerBin, &header)
 	if errHeader != nil {
 		return header, payload, errHeader
 	}
+	// fmt.Println("Unmarshall header pass")
 
 	payloadBin, errPayload := base64.Decode(split[1])
 	if errPayload != nil {
 		return header, payload, errPayload
 	}
+	// fmt.Println("Decode split [1] pass")
+
 	errPayload = json.Unmarshal(payloadBin, &payload)
 	if errPayload != nil {
 		return header, payload, errPayload
 	}
+	// fmt.Println("Unmarshall payload pass")
 
 	return header, payload, nil
 }
