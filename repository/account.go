@@ -13,23 +13,23 @@ import "github.com/google/uuid"
 
 // import "hb-backend-v1/config"
 
-type AccountObj struct {
-	conn *sql.DB
-}
-
-type AccountInt interface {
+type Account interface {
 	Login(*gin.Context, model.LoginRequest) (bool, model.LoginDataResponse, string)
 	Registration(*gin.Context, model.RegistrationRequest) (bool, string, string)
 	// UpdatePassword(*gin.Context, model.UpdatePasswordRequest) *model.RepoResponse
 }
 
-func Account(db *sql.DB) AccountInt {
-	return &AccountObj{
+type AccountRepo struct {
+	conn *sql.DB
+}
+
+func NewAccountRepo(db *sql.DB) Account {
+	return &AccountRepo{
 		conn: db,
 	}
 }
 
-func (account *AccountObj) Login(c *gin.Context, form model.LoginRequest) (bool, model.LoginDataResponse, string) {
+func (account *AccountRepo) Login(c *gin.Context, form model.LoginRequest) (bool, model.LoginDataResponse, string) {
 	var result model.LoginDataResponse
 
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
@@ -53,7 +53,7 @@ func (account *AccountObj) Login(c *gin.Context, form model.LoginRequest) (bool,
 	return true, result, ""
 }
 
-func (account AccountObj) Registration(c *gin.Context, form model.RegistrationRequest) (bool, string, string) {
+func (account AccountRepo) Registration(c *gin.Context, form model.RegistrationRequest) (bool, string, string) {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
 	var accountTypeTable string
 

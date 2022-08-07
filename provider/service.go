@@ -5,11 +5,11 @@ import "hb-backend-v1/service"
 // import "fmt"
 
 type serviceInit struct {
-	Authentication service.AuthenticationInt
+	Account service.Account
 }
 
 func InitServices(repoInit *repositoryInit) *serviceInit {
 	return &serviceInit{
-		Authentication: service.NewAuthentication(&repoInit.Account),
+		Account: service.NewAccountService(&repoInit.Account),
 	}
 }

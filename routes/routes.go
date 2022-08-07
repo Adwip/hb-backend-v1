@@ -15,6 +15,6 @@ func Init(app *gin.Engine, handler *provider.HandlerInit, middleware *provider.M
 	// router.Use(loginValidator.LoginChecking)
 
 	// router.OPTIONS("", handler.Options)
-	// router.NoRoute(handler.NoRoute)
+	app.NoRoute(handler.General.NoRoute)
 
 }

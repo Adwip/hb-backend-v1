@@ -11,7 +11,7 @@ var authRepoMock = repository.AccountMock{}
 
 func Test_Login(t *testing.T) {
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
-	authService := AuthenticationService{authRepoMock}
+	authService := AccountService{authRepoMock}
 	var formMock model.LoginRequest
 
 	success, _, _ := authService.Login(c, formMock)

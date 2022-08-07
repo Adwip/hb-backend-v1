@@ -14,10 +14,10 @@ type AuthenticationInt interface {
 }
 
 type authentication struct {
-	redis repository.AccountInt //Actually for redis, will replcae later
+	redis repository.Account //Actually for redis, will replcae later
 }
 
-func AuthMiddleware(redis *repository.AccountInt) AuthenticationInt {
+func AuthMiddleware(redis *repository.Account) AuthenticationInt {
 	return &authentication{
 		redis: *redis,
 	}
