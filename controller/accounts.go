@@ -5,12 +5,12 @@ import "github.com/gin-gonic/gin"
 import "hb-backend-v1/service"
 
 type AccountCtrl struct {
-	authenticationService service.AuthenticationInt
+	accountService service.Account
 }
 
-func Account(auth *service.AuthenticationInt) *AccountCtrl {
+func Account(auth *service.Account) *AccountCtrl {
 	return &AccountCtrl{
-		authenticationService: *auth,
+		accountService: *auth,
 	}
 }
 
@@ -22,7 +22,7 @@ func (handler AccountCtrl) Login(c *gin.Context) {
 		return
 	}
 
-	success, result, msg := handler.authenticationService.Login(c, loginForm)
+	success, result, msg := handler.accountService.Login(c, loginForm)
 
 	if !success {
 		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
@@ -38,7 +38,7 @@ func (handler AccountCtrl) Regristration(c *gin.Context) {
 		return
 	}
 
-	success, id, msg := handler.authenticationService.Registration(c, RegistrationForm)
+	success, id, msg := handler.accountService.Registration(c, RegistrationForm)
 
 	if !success {
 		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
@@ -47,22 +47,21 @@ func (handler AccountCtrl) Regristration(c *gin.Context) {
 	c.JSON(200, model.WebResponse{Success: true, Data: id})
 }
 
-/*
+func (handler AccountCtrl) UpdatePassword(c *gin.Context) {
+	var UpdatePasswordForm model.UpdatePasswordRequest
 
-func (AccountCtrl) UpdatePassword(c *gin.Context) {
-	var UpdatePasswordForm accountForm.UpdatePasswordForm
-	account := repository.Account()
 	if err := c.ShouldBindJSON(&UpdatePasswordForm); err != nil {
 		c.JSON(400, gin.H{"success": false})
 		return
 	}
-	result := account.UpdatePassword(c, UpdatePasswordForm)
-	if result.Success {
-		c.JSON(200, model.WebResponse{Success: true})
+
+	success, msg := handler.accountService.UpdatePassword(c, UpdatePasswordForm)
+	if !success {
+		c.JSON(500, model.WebResponse{Success: false, Msg: msg})
 		return
 	}
-	c.JSON(200, model.WebResponse{Success: true, Msg: result.Msg})
-}*/
+	c.JSON(200, model.WebResponse{Success: true, Msg: msg})
+}
 
 /*
 func Test(c *gin.Context) {

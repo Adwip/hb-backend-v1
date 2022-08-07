@@ -8,23 +8,24 @@ import "os"
 import "hb-backend-v1/repository"
 import "github.com/gin-gonic/gin"
 
-type AuthenticationInt interface {
+type Account interface {
 	Registration(*gin.Context, model.RegistrationRequest) (bool, string, string)
 	Login(*gin.Context, model.LoginRequest) (bool, model.AccountLoginResponse, string)
 	LogOut()
+	UpdatePassword(*gin.Context, model.UpdatePasswordRequest) (bool, string)
 }
 
-type AuthenticationService struct {
-	accountRepo repository.AccountInt
+type AccountService struct {
+	accountRepo repository.Account
 }
 
-func NewAuthentication(account *repository.AccountInt) AuthenticationInt {
-	return &AuthenticationService{
+func NewAccountService(account *repository.Account) Account {
+	return &AccountService{
 		accountRepo: *account,
 	}
 }
 
-func (service AuthenticationService) Registration(c *gin.Context, req model.RegistrationRequest) (bool, string, string) {
+func (service AccountService) Registration(c *gin.Context, req model.RegistrationRequest) (bool, string, string) {
 	hash := utils.Hash()
 	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
 	req.Password = hash.SHA256(req.Password, passwordKey)
@@ -33,7 +34,7 @@ func (service AuthenticationService) Registration(c *gin.Context, req model.Regi
 	return success, id, msg
 }
 
-func (service AuthenticationService) Login(c *gin.Context, loginForm model.LoginRequest) (bool, model.AccountLoginResponse, string) {
+func (service AccountService) Login(c *gin.Context, loginForm model.LoginRequest) (bool, model.AccountLoginResponse, string) {
 	var loginResult model.AccountLoginResponse
 
 	exists, accountData, msg := service.accountRepo.Login(c, loginForm)
@@ -85,6 +86,10 @@ func (service AuthenticationService) Login(c *gin.Context, loginForm model.Login
 
 }
 
-func (AuthenticationService) LogOut() {
+func (service AccountService) UpdatePassword(c *gin.Context, req model.UpdatePasswordRequest) (bool, string) {
+	return true, ""
+}
+
+func (AccountService) LogOut() {
 
 }

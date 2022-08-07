@@ -1,21 +1,19 @@
 package controller
 
-/*
 import "github.com/gin-gonic/gin"
 
-type general struct {
+type General struct {
 }
 
-func Handler() *general {
-	handler := &general{}
+func GeneralHandler() *General {
+	handler := &General{}
 	return handler
 }
 
-func (general) Options(c *gin.Context) {
-	c.JSON(200, gin.H{"success": 200})
+func (General) Options(c *gin.Context) {
+	c.JSON(200, gin.H{"success": true})
 }
 
-func (general) NoRoute(c *gin.Context) {
-	c.JSON(404, gin.H{"success": false, "error": "URL Not Found"})
+func (General) NoRoute(c *gin.Context) {
+	c.JSON(404, gin.H{"success": false, "msg": "URL Not Found"})
 }
-*/
