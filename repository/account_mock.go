@@ -14,3 +14,7 @@ func (am AccountMock) Login(c *gin.Context, form model.LoginRequest) (bool, mode
 func (am AccountMock) Registration(c *gin.Context, form model.RegistrationRequest) (bool, string, string) {
 	return false, "result", ""
 }
+
+func (am AccountMock) UpdatePassword(c *gin.Context, form *model.UpdatePasswordRequest) (bool, string) {
+	return false, ""
+}

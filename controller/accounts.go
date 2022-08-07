@@ -55,12 +55,12 @@ func (handler AccountCtrl) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	success, msg := handler.accountService.UpdatePassword(c, UpdatePasswordForm)
+	success, msg := handler.accountService.UpdatePassword(c, &UpdatePasswordForm)
 	if !success {
-		c.JSON(500, model.WebResponse{Success: false, Msg: msg})
+		c.JSON(500, model.WebResponse{Success: false, Data: "", Msg: msg})
 		return
 	}
-	c.JSON(200, model.WebResponse{Success: true, Msg: msg})
+	c.JSON(200, model.WebResponse{Success: true, Data: "", Msg: msg})
 }
 
 /*

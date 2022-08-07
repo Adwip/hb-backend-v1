@@ -16,7 +16,7 @@ import "github.com/google/uuid"
 type Account interface {
 	Login(*gin.Context, model.LoginRequest) (bool, model.LoginDataResponse, string)
 	Registration(*gin.Context, model.RegistrationRequest) (bool, string, string)
-	// UpdatePassword(*gin.Context, model.UpdatePasswordRequest) *model.RepoResponse
+	UpdatePassword(*gin.Context, *model.UpdatePasswordRequest) (bool, string)
 }
 
 type AccountRepo struct {
@@ -104,33 +104,31 @@ func (account AccountRepo) Registration(c *gin.Context, form model.RegistrationR
 	return true, id.String(), "Failed to add"
 }
 
-/*
-func (account AccountObj) UpdatePassword(c *gin.Context, form model.UpdatePasswordRequest) *model.RepoResponse {
+func (account AccountRepo) UpdatePassword(c *gin.Context, form *model.UpdatePasswordRequest) (bool, string) {
 	ctx, cancel := context.WithTimeout(c, 5*time.Second)
-	identity := library.Identity(c)
-	hash := library.Hash()
-	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
+	identity := utils.Identity(c)
 	defer cancel()
 	_ = ctx
 
-	statement := "update account set password = ? where id = ? and password = ?"
-	hashedPass := hash.SHA256(form.NewPassword, passwordKey)
-	confirmHashedPass := hash.SHA256(form.ConfirmPassword, passwordKey)
-	oldPassword := hash.SHA256(form.OldPassword, passwordKey)
-	if hashedPass != confirmHashedPass {
-		return &model.RepoResponse{Success: false, Msg: "Password confirm not matched"}
-	}
-	result, err := account.conn.ExecContext(ctx, statement, hashedPass, identity.GetUserID(), oldPassword)
+	statement := "update account set password = ? where id_account = ? and password = ?"
+
+	result, err := account.conn.ExecContext(ctx, statement, form.NewPassword, identity.GetAccountID(), form.OldPassword)
 	if err != nil {
-		return &model.RepoResponse{Success: false, Msg: err.Error()}
+		fmt.Println(err)
+		// return &model.RepoResponse{Success: false, Msg: err.Error()}
+		return false, "Failed to update password"
 	}
 	rows, errAff := result.RowsAffected()
 	if errAff != nil {
-		return &model.RepoResponse{Success: false, Msg: errAff.Error()}
+		fmt.Println(errAff)
+		// return &model.RepoResponse{Success: false, Msg: errAff.Error()}
+		return false, "Failed to update password"
 	}
 
 	if rows < 1 {
-		return &model.RepoResponse{Success: false, Msg: "Failed to update password"}
+		// return &model.RepoResponse{Success: false, Msg: "Failed to update password"}
+		return false, "Failed to update password"
 	}
-	return &model.RepoResponse{Success: true}
-}*/
+	// return &model.RepoResponse{Success: true}
+	return true, ""
+}

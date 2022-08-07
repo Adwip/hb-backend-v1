@@ -12,7 +12,7 @@ type Account interface {
 	Registration(*gin.Context, model.RegistrationRequest) (bool, string, string)
 	Login(*gin.Context, model.LoginRequest) (bool, model.AccountLoginResponse, string)
 	LogOut()
-	UpdatePassword(*gin.Context, model.UpdatePasswordRequest) (bool, string)
+	UpdatePassword(*gin.Context, *model.UpdatePasswordRequest) (bool, string)
 }
 
 type AccountService struct {
@@ -86,8 +86,23 @@ func (service AccountService) Login(c *gin.Context, loginForm model.LoginRequest
 
 }
 
-func (service AccountService) UpdatePassword(c *gin.Context, req model.UpdatePasswordRequest) (bool, string) {
-	return true, ""
+func (service AccountService) UpdatePassword(c *gin.Context, req *model.UpdatePasswordRequest) (bool, string) {
+	hash := utils.Hash()
+	passwordKey := os.Getenv("PASSWORD_SECRET_KEY")
+	req.NewPassword = hash.SHA256(req.NewPassword, passwordKey)
+	req.OldPassword = hash.SHA256(req.OldPassword, passwordKey)
+	req.ConfirmPassword = hash.SHA256(req.ConfirmPassword, passwordKey)
+
+	if req.ConfirmPassword != req.NewPassword {
+		return false, "Password Not Matched"
+	}
+
+	success, msg := service.accountRepo.UpdatePassword(c, req)
+
+	if !success {
+		return false, msg
+	}
+	return true, "Succes update password"
 }
 
 func (AccountService) LogOut() {

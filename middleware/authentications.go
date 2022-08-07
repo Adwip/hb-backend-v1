@@ -33,6 +33,13 @@ func (authentication) Logger(c *gin.Context) {
 		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 0"})
 		return
 	}
+
+	//"Bearer" string exists or not
+	subToken := strings.Split(token[0], " ")
+	if len(subToken) > 1 {
+		token[0] = subToken[1]
+	}
+
 	splittedToken := strings.Split(token[0], ".")
 	if length := len(splittedToken); length != 3 {
 		c.AbortWithStatusJSON(401, model.WebResponse{Success: false, Msg: "Access rejected 1"})

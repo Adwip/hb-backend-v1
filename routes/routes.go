@@ -14,7 +14,7 @@ func Init(app *gin.Engine, handler *provider.HandlerInit, middleware *provider.M
 	// router.Use(corsValidator.Cors)
 	// router.Use(loginValidator.LoginChecking)
 
-	// router.OPTIONS("", handler.Options)
+	app.OPTIONS("", handler.General.Options)
 	app.NoRoute(handler.General.NoRoute)
 
 }
