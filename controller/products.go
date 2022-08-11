@@ -4,9 +4,6 @@ import "github.com/gin-gonic/gin"
 import "hb-backend-v1/model"
 import "hb-backend-v1/service"
 
-// import "fmt"
-// import "reflect"
-
 type ProductController struct {
 	product service.Product
 }
