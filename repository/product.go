@@ -5,8 +5,6 @@ import "database/sql"
 import "context"
 import "time"
 import "github.com/google/uuid"
-
-// import "hb-backend-v1/model/product"
 import "fmt"
 import "hb-backend-v1/model"
 import "hb-backend-v1/utils"
