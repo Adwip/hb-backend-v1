@@ -11,6 +11,8 @@ func authenticatedRoutes(router *gin.Engine, handler *provider.HandlerInit, midd
 	auth := authenticatedRoutes.Group("/auth")
 	auth.PUT("/password", handler.Authentication.UpdatePassword)
 
+	product := authenticatedRoutes.Group("/product")
+	product.POST("/", handler.Product.AddProduct)
 	/*
 		productCtrl := controller.Product()
 		product := authenticatedRoutes.Group("/user-product")
