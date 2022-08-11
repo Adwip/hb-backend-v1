@@ -1,37 +1,38 @@
 package repository
 
-/*
-import "hb-backend-v1/config"
 import "github.com/gin-gonic/gin"
 import "database/sql"
 import "context"
 import "time"
 import "github.com/google/uuid"
-import "hb-backend-v1/model/product"
-import "hb-backend-v1/library"
+
+// import "hb-backend-v1/model/product"
 import "fmt"
 import "hb-backend-v1/model"
+import "hb-backend-v1/utils"
 
-type productRepo struct {
+type Product interface {
+	AddProduct(*gin.Context, *model.AddProductRequest) (bool, string, string)
+}
+
+type ProductRepo struct {
 	conn *sql.DB
 }
 
-func Product() *productRepo {
-	database := config.Database()
-	product := &productRepo{
-		conn: database.GetConnection(),
+func NewProductRepo(db *sql.DB) Product {
+	return &ProductRepo{
+		conn: db,
 	}
-	return product
 }
 
-func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, string, string) {
+func (repo ProductRepo) AddProduct(c *gin.Context, req *model.AddProductRequest) (bool, string, string) {
 	var negotiate int8
 	var ImageError, purchaseError error
 	var failedImages int
-	var productImage product.ProductImage
+	var productImage model.ProductImage
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
-	identity := library.Identity(c)
-	currentTime := library.Time().CurrentDateTimeDbFormat()
+	identity := utils.Identity(c)
+	currentTime := utils.Time().CurrentDateTimeDbFormat()
 
 	defer cancel()
 
@@ -40,25 +41,25 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, 
 		negotiate = 1
 	}
 
-	tx, err := pr.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	tx, err := repo.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		fmt.Println(err)
 		return false, "", "Failed to add product"
 	}
 
-	productStat := "INSERT INTO product (id_product, user, field, title, negotiate, purchaseType, type, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-	_, ErrProduct := tx.Exec(productStat, productID, identity.GetUserID(), req.Field, req.Title, negotiate, req.PurchaseType, req.Type, currentTime)
+	productStat := "INSERT INTO product (id_product, user, field, title, negotiable, purchaseType, type, price, status, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	_, ErrProduct := tx.Exec(productStat, productID, identity.GetUserID(), req.Field, req.Title, negotiate, req.PurchaseType, req.Type, req.Price, req.Status, currentTime)
 	if ErrProduct != nil {
 		tx.Rollback()
 		fmt.Println(ErrProduct)
 	}
 
 	if req.PurchaseType == "SPC" {
-		SinglePurchaseStat := "INSERT INTO one_time_purchase (id_spc, product, harga, status) VALUES (?, ?, ?, ?)"
-		_, purchaseError = tx.Exec(SinglePurchaseStat, uuid.New(), productID, req.Price, req.Status)
+		SinglePurchaseStat := "INSERT INTO one_time_purchase (id_spc, product) VALUES (?, ?)"
+		_, purchaseError = tx.Exec(SinglePurchaseStat, uuid.New(), productID)
 	} else {
-		MultiPurchaseStat := "INSERT INTO multiple_purchase (id_mpc, product, kuota, harga, status) VALUES (?, ?, ?, ?, ?)"
-		_, purchaseError = tx.Exec(MultiPurchaseStat, uuid.New(), productID, req.Kuota, req.Price, req.Status)
+		MultiPurchaseStat := "INSERT INTO multiple_purchase (id_mpc, product, kuota) VALUES (?, ?, ?)"
+		_, purchaseError = tx.Exec(MultiPurchaseStat, uuid.New(), productID, req.Kuota)
 	}
 
 	if purchaseError != nil {
@@ -91,6 +92,7 @@ func (pr productRepo) AddProduct(c *gin.Context, req product.AddProduct) (bool, 
 	return true, productID.String(), ""
 }
 
+/*
 func (pr productRepo) RecommendationProduct(c *gin.Context) (bool, []model.AllProductsResponse) {
 
 	var result []model.AllProductsResponse

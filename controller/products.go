@@ -1,34 +1,31 @@
 package controller
 
-/*
 import "github.com/gin-gonic/gin"
-import "hb-backend-v1/library"
 import "hb-backend-v1/model"
-import "hb-backend-v1/model/product"
-import "hb-backend-v1/repository"
+import "hb-backend-v1/service"
 
 // import "fmt"
 // import "reflect"
 
-type productObj struct {
+type ProductController struct {
+	product service.Product
 }
 
-func Product() *productObj {
-	productObject := &productObj{}
-	return productObject
+func NewProductController(product *service.Product) *ProductController {
+	return &ProductController{
+		product: *product,
+	}
 }
 
-func (productObj) AddProduct(c *gin.Context) {
-	var reqBody product.AddProduct
-	producRepo := repository.Product()
-	err := c.BindJSON(&reqBody)
-
+func (handler ProductController) AddProduct(c *gin.Context) {
+	var form model.AddProductRequest
+	err := c.BindJSON(&form)
 	if err != nil {
 		c.JSON(200, model.WebResponse{Success: false})
 		return
 	}
 
-	success, id, msg := producRepo.AddProduct(c, reqBody)
+	success, result, msg := handler.product.AddProduct(c, &form)
 
 	if !success {
 		c.JSON(200, model.WebResponse{Success: false, Msg: msg})
@@ -36,13 +33,12 @@ func (productObj) AddProduct(c *gin.Context) {
 	}
 	// fmt.Println(reflect.TypeOf(insert.Data))
 
-		insertImage := productImageRepo.AddProductImages(c, id, reqBody.Images)
-		if insertImage.Data != nil {
-			failedInsert["productImage"] = insertImage.Data
-		}
-	c.JSON(200, model.WebResponse{Success: true, Data: id})
+	_, imagesFail := handler.product.AddProductImages(c, &form.Images, result)
+
+	c.JSON(200, model.WebResponse{Success: true, Data: imagesFail, Msg: msg})
 }
 
+/*
 func (productObj) Recommendation(c *gin.Context) {
 	productRepo := repository.Product()
 

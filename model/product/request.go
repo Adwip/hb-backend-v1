@@ -1,6 +1,6 @@
 package product
 
-type AddProduct struct {
+type AddProductRequest struct {
 	Title         string         `json:"productName"`
 	Field         int8           `json:"fieldType"`
 	OpenNegotiate bool           `json:"openNegotiate"`
