@@ -11,6 +11,7 @@ import "hb-backend-v1/utils"
 
 type Product interface {
 	AddProduct(*gin.Context, *model.AddProductRequest) (bool, string, string)
+	ProductRecommended(*gin.Context) []model.AllProductsResponse
 }
 
 type ProductRepo struct {
@@ -90,8 +91,7 @@ func (repo ProductRepo) AddProduct(c *gin.Context, req *model.AddProductRequest)
 	return true, productID.String(), ""
 }
 
-/*
-func (pr productRepo) RecommendationProduct(c *gin.Context) (bool, []model.AllProductsResponse) {
+func (pr ProductRepo) ProductRecommended(c *gin.Context) []model.AllProductsResponse {
 
 	var result []model.AllProductsResponse
 	var row model.AllProductsResponse
@@ -127,22 +127,23 @@ func (pr productRepo) RecommendationProduct(c *gin.Context) (bool, []model.AllPr
 
 	if err != nil {
 		fmt.Println(err)
-		return false, result
+		return result
 	}
 
 	for rows.Next() {
 		errorRow = rows.Scan(&row.ID, &row.ProductName, &row.Creator, &row.Negotiable, &row.PurchaseType, &row.Favourite, &row.Price, &row.ProductImage)
 		if errorRow != nil {
 			fmt.Println(errorRow)
-			return false, result
+			return result
 		}
 
 		result = append(result, row)
 	}
 
-	return true, result
+	return result
 }
 
+/*
 func (pr productRepo) DetailByID(c *gin.Context, id string) (bool, model.ProductByIDResponse) {
 
 	var result model.ProductByIDResponse

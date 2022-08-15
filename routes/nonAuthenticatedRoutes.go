@@ -11,6 +11,8 @@ func nonAuthenticatedRoutes(router *gin.Engine, handler *provider.HandlerInit) {
 	// authGroup.PUT("/password", handler.Authentication.Regristration)
 	// auth.POST("/destroy",nil)
 
+	product := router.Group("/product")
+	product.GET("/", handler.Product.Recommendation)
 	/*
 		productCtrl := controller.Product()
 		product := router.Group("/product")

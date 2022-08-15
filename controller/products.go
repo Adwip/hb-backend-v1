@@ -35,19 +35,14 @@ func (handler ProductController) AddProduct(c *gin.Context) {
 	c.JSON(200, model.WebResponse{Success: true, Data: imagesFail, Msg: msg})
 }
 
-/*
-func (productObj) Recommendation(c *gin.Context) {
-	productRepo := repository.Product()
+func (handler ProductController) Recommendation(c *gin.Context) {
 
-	exist, result := productRepo.RecommendationProduct(c)
+	result := handler.product.ProductRecommended(c)
 
-	if !exist {
-		c.JSON(400, model.WebResponse{Success: false, Data: result})
-		return
-	}
 	c.JSON(200, model.WebResponse{Success: true, Data: result})
 }
 
+/*
 func (productObj) DetailByID(c *gin.Context) {
 	productRepo := repository.Product()
 
