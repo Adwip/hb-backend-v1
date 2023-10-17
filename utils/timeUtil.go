@@ -1,7 +1,9 @@
 package utils
 
-import "time"
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type TimeLib struct {
 	userDateFormat string

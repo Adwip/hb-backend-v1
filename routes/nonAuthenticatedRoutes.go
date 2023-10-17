@@ -1,7 +1,10 @@
 package routes
 
-import "github.com/gin-gonic/gin"
-import "hb-backend-v1/provider"
+import (
+	"hb-backend-v1/provider"
+
+	"github.com/gin-gonic/gin"
+)
 
 func nonAuthenticatedRoutes(router *gin.Engine, handler *provider.HandlerInit) {
 

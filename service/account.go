@@ -1,12 +1,15 @@
 package service
 
-import "hb-backend-v1/utils"
-import "hb-backend-v1/model"
-import "encoding/json"
-import "fmt"
-import "os"
-import "hb-backend-v1/repository"
-import "github.com/gin-gonic/gin"
+import (
+	"encoding/json"
+	"fmt"
+	"hb-backend-v1/model"
+	"hb-backend-v1/repository"
+	"hb-backend-v1/utils"
+	"os"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Account interface {
 	Registration(*gin.Context, model.RegistrationRequest) (bool, string, string)

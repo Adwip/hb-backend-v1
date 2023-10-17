@@ -1,11 +1,14 @@
 package main
 
-import "hb-backend-v1/routes"
-import "hb-backend-v1/config"
-import "github.com/joho/godotenv"
-import "github.com/gin-gonic/gin"
-import "os"
-import "hb-backend-v1/provider"
+import (
+	"hb-backend-v1/config"
+	"hb-backend-v1/provider"
+	"hb-backend-v1/routes"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+)
 
 func main() {
 	err := godotenv.Load()

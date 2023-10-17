@@ -1,8 +1,11 @@
 package service
 
-import "hb-backend-v1/repository"
-import "github.com/gin-gonic/gin"
-import "hb-backend-v1/model"
+import (
+	"hb-backend-v1/model"
+	"hb-backend-v1/repository"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Product interface {
 	AddProduct(*gin.Context, *model.AddProductRequest) (bool, string, string)

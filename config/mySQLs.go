@@ -1,9 +1,13 @@
 package config
 
-import "database/sql"
-import _ "github.com/go-sql-driver/mysql"
-import "fmt"
-import _ "os"
+import (
+	"database/sql"
+	"fmt"
+
+	_ "github.com/go-sql-driver/mysql"
+
+	_ "os"
+)
 
 // var connection *sql.DB
 

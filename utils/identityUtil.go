@@ -1,8 +1,11 @@
 package utils
 
-import _ "context"
-import m "hb-backend-v1/model"
-import "github.com/gin-gonic/gin"
+import (
+	_ "context"
+	m "hb-backend-v1/model"
+
+	"github.com/gin-gonic/gin"
+)
 
 // import "fmt"
 

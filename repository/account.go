@@ -1,15 +1,18 @@
 package repository
 
 // import "encoding/json"
-import "fmt"
-import "hb-backend-v1/utils"
-import "hb-backend-v1/model"
-import "database/sql"
-import "github.com/gin-gonic/gin"
-import "context"
-import "time"
-import "os"
-import "github.com/google/uuid"
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"hb-backend-v1/model"
+	"hb-backend-v1/utils"
+	"os"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+)
 
 // import "hb-backend-v1/config"
 

@@ -1,7 +1,9 @@
 package provider
 
-import "hb-backend-v1/repository"
-import "database/sql"
+import (
+	"database/sql"
+	"hb-backend-v1/repository"
+)
 
 type repositoryInit struct {
 	Account      repository.Account

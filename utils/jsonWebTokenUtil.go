@@ -1,11 +1,15 @@
 package utils
 
-import m "hb-backend-v1/model"
-import "encoding/json"
-import "errors"
-import "strings"
-import _ "os"
-import _ "fmt"
+import (
+	"encoding/json"
+	"errors"
+	m "hb-backend-v1/model"
+	"strings"
+
+	_ "os"
+
+	_ "fmt"
+)
 
 type JWT struct {
 }

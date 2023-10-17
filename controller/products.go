@@ -1,8 +1,11 @@
 package controller
 
-import "github.com/gin-gonic/gin"
-import "hb-backend-v1/model"
-import "hb-backend-v1/service"
+import (
+	"hb-backend-v1/model"
+	"hb-backend-v1/service"
+
+	"github.com/gin-gonic/gin"
+)
 
 type ProductController struct {
 	product service.Product

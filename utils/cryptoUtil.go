@@ -1,9 +1,12 @@
 package utils
 
-import "crypto/hmac"
-import "encoding/hex"
-import "crypto/sha256"
-import _ "fmt"
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+
+	_ "fmt"
+)
 
 type HashLib struct {
 }

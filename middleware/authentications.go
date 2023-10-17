@@ -1,12 +1,15 @@
 package middleware
 
-import "github.com/gin-gonic/gin"
-import "hb-backend-v1/model"
-import "hb-backend-v1/utils"
-import "strings"
-import "fmt"
-import "os"
-import "hb-backend-v1/repository"
+import (
+	"fmt"
+	"hb-backend-v1/model"
+	"hb-backend-v1/repository"
+	"hb-backend-v1/utils"
+	"os"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+)
 
 type AuthenticationInt interface {
 	Logger(*gin.Context)

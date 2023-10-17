@@ -1,11 +1,14 @@
 package service
 
-import "github.com/gin-gonic/gin"
-import "hb-backend-v1/model"
-import "testing"
-import "hb-backend-v1/repository"
-import "net/http/httptest"
-import "fmt"
+import (
+	"fmt"
+	"hb-backend-v1/model"
+	"hb-backend-v1/repository"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+)
 
 var authRepoMock = repository.AccountMock{}
 

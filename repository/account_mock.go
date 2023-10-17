@@ -1,7 +1,10 @@
 package repository
 
-import "github.com/gin-gonic/gin"
-import "hb-backend-v1/model"
+import (
+	"hb-backend-v1/model"
+
+	"github.com/gin-gonic/gin"
+)
 
 type AccountMock struct {
 }

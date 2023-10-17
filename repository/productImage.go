@@ -1,12 +1,15 @@
 package repository
 
-import "github.com/gin-gonic/gin"
-import "database/sql"
-import "context"
-import "time"
-import "github.com/google/uuid"
-import "fmt"
-import "hb-backend-v1/model"
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"hb-backend-v1/model"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+)
 
 type ProductImage interface {
 	AddProductImages(*gin.Context, string, []model.ProductImage) (bool, []string)

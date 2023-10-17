@@ -1,7 +1,10 @@
 package middleware
 
-import "github.com/gin-gonic/gin"
-import "os"
+import (
+	"os"
+
+	"github.com/gin-gonic/gin"
+)
 
 type cors struct {
 }
